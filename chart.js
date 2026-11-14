@@ -619,9 +619,30 @@ function subSeries(id,values){
   c.fillRect(0,0,w,h);
 
   const {start,data}=getVisible();
+  const xStep=(w-20)/Math.max(1,data.length-1);
+
+  if(id==="stochastic"){
+    const k=values.k.slice(start,start+data.length);
+    const d=values.d.slice(start,start+data.length);
+    c.strokeStyle=COLORS.grid;
+    [20,80].forEach(level=>{
+      const y=h-10-(level/100)*(h-20);
+      c.setLineDash([4,4]);c.beginPath();c.moveTo(5,y);c.lineTo(w-5,y);c.stroke();c.setLineDash([]);
+    });
+    [[k,COLORS.gold],[d,"#63a9ff"]].forEach(([series,color])=>{
+      c.strokeStyle=color;c.lineWidth=2;c.beginPath();let started=false;
+      series.forEach((v,i)=>{
+        if(v===null||!Number.isFinite(v)){started=false;return;}
+        const px=10+i*xStep,py=h-10-(v/100)*(h-20);
+        if(!started){c.moveTo(px,py);started=true;}else c.lineTo(px,py);
+      });
+      c.stroke();
+    });
+    return;
+  }
+
   const shown=values.slice(start,start+data.length);
   const nums=shown.filter(v=>v!==null&&Number.isFinite(v));
-
   if(!nums.length) return;
 
   let min=Math.min(...nums),max=Math.max(...nums);
@@ -638,6 +659,18 @@ function subSeries(id,values){
 
   const xStep=(w-20)/Math.max(1,shown.length-1);
   const y=v=>h-10-(v-min)/(max-min)*(h-20);
+
+  if(id==="volume"){
+    const base=h-10;
+    const barW=Math.max(2,(w-20)/Math.max(1,shown.length)*.65);
+    shown.forEach((v,i)=>{
+      if(v===null||!Number.isFinite(v)) return;
+      const barH=(v-min)/(max-min)*(h-20);
+      c.fillStyle=candles[start+i] && candles[start+i].close>=candles[start+i].open ? COLORS.green : COLORS.red;
+      c.fillRect(10+i*(w-20)/Math.max(1,shown.length),base-barH,barW,barH);
+    });
+    return;
+  }
 
   c.strokeStyle=settings[id].color||COLORS.gold;
   c.lineWidth=settings[id].width||2;
