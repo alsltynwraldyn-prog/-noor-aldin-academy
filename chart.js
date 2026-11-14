@@ -1,832 +1,882 @@
 
+"use strict";
+
+/* =========================================
+   NOUR ALDIN ACADEMY
+   Interactive Technical Analysis Engine
+========================================= */
+
 const canvas = document.getElementById("tradingChart");
 const ctx = canvas.getContext("2d");
+const indicatorArea = document.getElementById("indicatorCharts");
+const editor = document.getElementById("editor");
 
-let candles = [];
-let selectedCandle = -1;
-
-const C = {
-  bg: "#101827",
-  grid: "#34465c",
-  gold: "#d5b45b",
-  green: "#00c087",
-  red: "#ef5350",
-  blue: "#42a5f5",
-  orange: "#ffb74d",
-  purple: "#b388ff",
-  white: "#ffffff"
+const COLORS = {
+  background: "#0d1727",
+  grid: "#293951",
+  text: "#9eacc0",
+  gold: "#d8b45a",
+  green: "#16c784",
+  red: "#ea3943"
 };
 
 const indicatorNames = {
-  showEMA: "EMA - المتوسط الأسي",
-  showSMA: "SMA - المتوسط البسيط",
-  showADX: "ADX - قوة الاتجاه",
-  showSAR: "Parabolic SAR",
-  showRSI: "RSI - القوة النسبية",
-  showMACD: "MACD",
-  showStochastic: "Stochastic",
-  showCCI: "CCI",
-  showWilliams: "Williams %R",
-  showBB: "Bollinger Bands",
-  showATR: "ATR",
-  showKeltner: "Keltner Channels",
-  showStdDev: "Standard Deviation",
-  showVolume: "Volume",
-  showOBV: "OBV",
-  showMFI: "MFI",
-  showVolumeSMA: "Volume SMA"
+  ema:"EMA", sma:"SMA", adx:"ADX", sar:"Parabolic SAR",
+  rsi:"RSI", macd:"MACD", stochastic:"Stochastic",
+  cci:"CCI", williams:"Williams %R",
+  bollinger:"Bollinger Bands", atr:"ATR",
+  keltner:"Keltner Channels", std:"Standard Deviation",
+  volume:"Volume", obv:"OBV", mfi:"MFI",
+  volumeSma:"Volume SMA"
 };
 
-const editor = document.createElement("div");
-editor.style.cssText = `
-background:#172b43;color:white;padding:15px;
-margin:15px 0;border:1px solid #d5b45b;
-border-radius:12px;
-`;
+const settings = {};
+Object.keys(indicatorNames).forEach(id => {
+  settings[id] = {
+    period: id === "ema" || id === "sma" ? 20 : 14,
+    color: id === "volume" ? COLORS.gold : "#e8bd62",
+    width: 2
+  };
+});
 
-const subcharts = document.createElement("div");
-subcharts.id = "indicatorCharts";
+let candles = [];
+let selected = -1;
+let visibleCount = 55;
+let offset = 0;
+let dragging = false;
+let dragStart = 0;
+let initialOffset = 0;
+let activePointer = null;
 
-canvas.parentNode.insertAdjacentElement("afterend", editor);
-editor.insertAdjacentElement("afterend", subcharts);
+const $ = id => document.getElementById(id);
 
-// إنشاء شمعة تجريبية
-function generateCandle(previousClose) {
-  const open = previousClose ?? 200 + Math.random() * 30;
-  const close = open + (Math.random() - 0.5) * 35;
+function randomBetween(a,b){
+  return a + Math.random() * (b-a);
+}
+
+function makeCandle(previous){
+  const open = previous ?? 100 + Math.random()*10;
+  const close = open + randomBetween(-2.2,2.2);
+  const high = Math.max(open,close) + randomBetween(.2,1.5);
+  const low = Math.min(open,close) - randomBetween(.2,1.5);
 
   return {
-    open,
-    close,
-    high: Math.max(open, close) + Math.random() * 15,
-    low: Math.min(open, close) - Math.random() * 15,
-    volume: Math.round(500 + Math.random() * 9500)
+    open, close, high, low,
+    volume: Math.round(randomBetween(300,1800))
   };
 }
 
-function average(values) {
-  const valid = values.filter(Number.isFinite);
-  return valid.length
-    ? valid.reduce((a, b) => a + b, 0) / valid.length
-    : null;
+function createData(){
+  candles = [];
+  let price = 100;
+
+  for(let i=0;i<100;i++){
+    const c = makeCandle(price);
+    candles.push(c);
+    price = c.close;
+  }
+
+  selected = candles.length-1;
+  offset = 0;
+  visibleCount = 55;
+  render();
 }
 
-// المتوسط البسيط
-function SMA(values, period) {
-  return values.map((v, i) => {
-    if (i < period - 1) return null;
-    return average(values.slice(i - period + 1, i + 1));
+function addCandle(){
+  const last = candles[candles.length-1];
+  candles.push(makeCandle(last.close));
+  selected = candles.length-1;
+  offset = 0;
+  render();
+}
+
+function deleteSelected(){
+  if(candles.length <= 5) return;
+  if(selected < 0) return;
+
+  candles.splice(selected,1);
+  selected = Math.min(selected,candles.length-1);
+  render();
+}
+
+function resetChart(){
+  createData();
+}
+
+function getVisible(){
+  const end = Math.max(1,candles.length-offset);
+  const start = Math.max(0,end-visibleCount);
+  return {start,end,data:candles.slice(start,end)};
+}
+
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1,2);
+
+  canvas.width = Math.round(rect.width*dpr);
+  canvas.height = Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  render();
+}
+
+function average(values,period){
+  return values.map((v,i)=>{
+    if(i<period-1) return null;
+    const part=values.slice(i-period+1,i+1);
+    return part.reduce((a,b)=>a+b,0)/period;
   });
 }
 
-// المتوسط الأسي
-function EMA(values, period) {
-  const result = [];
-  const multiplier = 2 / (period + 1);
-  let previous = null;
+function ema(values,period){
+  const result=[];
+  const k=2/(period+1);
+  let prev=null;
 
-  values.forEach((v, i) => {
-    if (i === period - 1) {
-      previous = average(values.slice(0, period));
-      result.push(previous);
-    } else if (i >= period) {
-      previous = (v - previous) * multiplier + previous;
-      result.push(previous);
-    } else {
-      result.push(null);
-    }
+  values.forEach((v,i)=>{
+    if(i===period-1){
+      prev=values.slice(0,period).reduce((a,b)=>a+b,0)/period;
+      result.push(prev);
+    }else if(i>=period){
+      prev=v*k+prev*(1-k);
+      result.push(prev);
+    }else result.push(null);
   });
 
   return result;
 }
 
-const closes = () => candles.map(c => c.close);
-const highs = () => candles.map(c => c.high);
-const lows = () => candles.map(c => c.low);
-const volumes = () => candles.map(c => c.volume);
-
-function trueRanges() {
-  return candles.map((c, i) => {
-    if (i === 0) return c.high - c.low;
-
-    const previous = candles[i - 1].close;
-
+function trueRanges(data){
+  return data.map((c,i)=>{
+    if(i===0) return c.high-c.low;
+    const prev=data[i-1].close;
     return Math.max(
-      c.high - c.low,
-      Math.abs(c.high - previous),
-      Math.abs(c.low - previous)
+      c.high-c.low,
+      Math.abs(c.high-prev),
+      Math.abs(c.low-prev)
     );
   });
 }
 
-// ATR
-function ATR(period = 14) {
-  return SMA(trueRanges(), period);
+function calcRSI(values,period){
+  const out=Array(values.length).fill(null);
+  if(values.length<=period) return out;
+
+  let gains=0,losses=0;
+
+  for(let i=1;i<=period;i++){
+    const diff=values[i]-values[i-1];
+    if(diff>0) gains+=diff;
+    else losses-=diff;
+  }
+
+  let avgGain=gains/period;
+  let avgLoss=losses/period;
+
+  out[period]=avgLoss===0 ? 100 :
+    100-(100/(1+avgGain/avgLoss));
+
+  for(let i=period+1;i<values.length;i++){
+    const diff=values[i]-values[i-1];
+    avgGain=(avgGain*(period-1)+Math.max(diff,0))/period;
+    avgLoss=(avgLoss*(period-1)+Math.max(-diff,0))/period;
+
+    out[i]=avgLoss===0 ? 100 :
+      100-(100/(1+avgGain/avgLoss));
+  }
+
+  return out;
 }
 
-// الانحراف المعياري
-function STD(values, period = 20) {
-  return values.map((v, i) => {
-    if (i < period - 1) return null;
-
-    const group = values.slice(i - period + 1, i + 1);
-    const mean = average(group);
-
-    return Math.sqrt(
-      average(group.map(x => (x - mean) ** 2))
-    );
-  });
-}
-
-// RSI
-function RSI(period = 14) {
-  const values = closes();
-
-  return values.map((v, i) => {
-    if (i < period) return null;
-
-    let gains = 0;
-    let losses = 0;
-
-    for (let j = i - period + 1; j <= i; j++) {
-      const change = values[j] - values[j - 1];
-
-      if (change > 0) gains += change;
-      else losses -= change;
-    }
-
-    const avgGain = gains / period;
-    const avgLoss = losses / period;
-
-    if (avgGain === 0 && avgLoss === 0) return 50;
-    if (avgLoss === 0) return 100;
-    if (avgGain === 0) return 0;
-
-    return 100 - 100 / (1 + avgGain / avgLoss);
-  });
-}
-
-// MACD
-function MACD() {
-  const fast = EMA(closes(), 12);
-  const slow = EMA(closes(), 26);
-
-  const line = fast.map((v, i) =>
-    v === null || slow[i] === null ? null : v - slow[i]
+function calcMACD(values){
+  const fast=ema(values,12);
+  const slow=ema(values,26);
+  const line=values.map((v,i)=>
+    fast[i]===null || slow[i]===null ? null : fast[i]-slow[i]
   );
 
-  const valid = line.filter(v => v !== null);
-  const signalValid = EMA(valid, 9);
-  const signal = Array(line.length).fill(null);
-
-  let j = 0;
-  line.forEach((v, i) => {
-    if (v !== null) signal[i] = signalValid[j++];
-  });
-
-  const histogram = line.map((v, i) =>
-    v === null || signal[i] === null ? null : v - signal[i]
+  const valid=line.map(v=>v===null?0:v);
+  const signal=ema(valid,9).map((v,i)=>
+    line[i]===null ? null : v
   );
 
-  return { line, signal, histogram };
-}
-
-// Stochastic
-function STOCH() {
-  const result = candles.map((c, i) => {
-    if (i < 13) return null;
-
-    const highest = Math.max(...highs().slice(i - 13, i + 1));
-    const lowest = Math.min(...lows().slice(i - 13, i + 1));
-
-    return highest === lowest
-      ? 50
-      : ((c.close - lowest) / (highest - lowest)) * 100;
-  });
-
-  return { k: result, d: SMA(result.map(v => v ?? 0), 3)
-    .map((v, i) => result[i] === null ? null : v) };
-}
-
-// CCI
-function CCI(period = 20) {
-  const typical = candles.map(c =>
-    (c.high + c.low + c.close) / 3
+  const histogram=line.map((v,i)=>
+    v===null || signal[i]===null ? null : v-signal[i]
   );
 
-  return typical.map((v, i) => {
-    if (i < period - 1) return null;
+  return {line,signal,histogram};
+}
 
-    const group = typical.slice(i - period + 1, i + 1);
-    const mean = average(group);
-    const deviation = average(group.map(x => Math.abs(x - mean)));
+function calcStochastic(data,period){
+  const k=data.map((c,i)=>{
+    if(i<period-1) return null;
+    const part=data.slice(i-period+1,i+1);
+    const high=Math.max(...part.map(x=>x.high));
+    const low=Math.min(...part.map(x=>x.low));
+    return high===low ? 50 : (c.close-low)/(high-low)*100;
+  });
 
-    return deviation === 0 ? 0 : (v - mean) / (0.015 * deviation);
+  const d=k.map((v,i)=>{
+    if(i<period+2) return null;
+    const part=k.slice(i-2,i+1);
+    if(part.some(x=>x===null)) return null;
+    return part.reduce((a,b)=>a+b,0)/3;
+  });
+
+  return {k,d};
+}
+
+function calcCCI(data,period){
+  const tp=data.map(c=>(c.high+c.low+c.close)/3);
+  const ma=average(tp,period);
+
+  return tp.map((v,i)=>{
+    if(ma[i]===null) return null;
+    const part=tp.slice(i-period+1,i+1);
+    const deviation=part.reduce((s,x)=>s+Math.abs(x-ma[i]),0)/period;
+    return deviation===0 ? 0 : (v-ma[i])/(.015*deviation);
   });
 }
 
-// Williams %R
-function WILLIAMS(period = 14) {
-  return candles.map((c, i) => {
-    if (i < period - 1) return null;
-
-    const high = Math.max(...highs().slice(i - period + 1, i + 1));
-    const low = Math.min(...lows().slice(i - period + 1, i + 1));
-
-    return high === low ? -50 :
-      ((high - c.close) / (high - low)) * -100;
+function calcWilliams(data,period){
+  return data.map((c,i)=>{
+    if(i<period-1) return null;
+    const part=data.slice(i-period+1,i+1);
+    const high=Math.max(...part.map(x=>x.high));
+    const low=Math.min(...part.map(x=>x.low));
+    return high===low ? -50 : (high-c.close)/(high-low)*-100;
   });
 }
 
-// OBV
-function OBV() {
-  let total = 0;
+function calcMFI(data,period){
+  const typical=data.map(c=>(c.high+c.low+c.close)/3);
+  const flow=typical.map((v,i)=>v*data[i].volume);
+  const out=Array(data.length).fill(null);
 
-  return candles.map((c, i) => {
-    if (i > 0) {
-      if (c.close > candles[i - 1].close) total += c.volume;
-      if (c.close < candles[i - 1].close) total -= c.volume;
-    }
-    return total;
-  });
-}
+  for(let i=period;i<data.length;i++){
+    let positive=0,negative=0;
 
-// MFI
-function MFI(period = 14) {
-  const typical = candles.map(c =>
-    (c.high + c.low + c.close) / 3
-  );
-
-  const money = typical.map((v, i) => v * candles[i].volume);
-
-  return candles.map((c, i) => {
-    if (i < period) return null;
-
-    let positive = 0;
-    let negative = 0;
-
-    for (let j = i - period + 1; j <= i; j++) {
-      if (typical[j] > typical[j - 1]) positive += money[j];
-      else if (typical[j] < typical[j - 1]) negative += money[j];
-    }
-
-    if (positive === 0 && negative === 0) return 50;
-    if (negative === 0) return 100;
-    if (positive === 0) return 0;
-
-    return 100 - 100 / (1 + positive / negative);
-  });
-}
-
-// ADX تعليمي
-function ADX(period = 14) {
-  const tr = trueRanges();
-
-  const dx = candles.map((c, i) => {
-    if (i < period) return null;
-
-    let plus = 0;
-    let minus = 0;
-    let range = 0;
-
-    for (let j = i - period + 1; j <= i; j++) {
-      const up = candles[j].high - candles[j - 1].high;
-      const down = candles[j - 1].low - candles[j].low;
-
-      if (up > down && up > 0) plus += up;
-      if (down > up && down > 0) minus += down;
-
-      range += tr[j];
+    for(let j=i-period+1;j<=i;j++){
+      if(typical[j]>typical[j-1]) positive+=flow[j];
+      else if(typical[j]<typical[j-1]) negative+=flow[j];
     }
 
-    if (range === 0) return 0;
+    out[i]=negative===0 ? 100 :
+      100-(100/(1+positive/negative));
+  }
 
-    const p = plus / range * 100;
-    const m = minus / range * 100;
-
-    return p + m === 0 ? 0 :
-      Math.abs(p - m) / (p + m) * 100;
-  });
-
-  return SMA(dx.map(v => v ?? 0), period)
-    .map((v, i) => dx[i] === null ? null : v);
+  return out;
 }
 
-// Parabolic SAR - تقريب تعليمي
-function SAR() {
-  const result = [];
-  let rising = true;
-  let sar = candles[0]?.low ?? 0;
-  let extreme = candles[0]?.high ?? 0;
-  let acceleration = 0.02;
+function calculate(){
+  const close=candles.map(c=>c.close);
+  const period=Math.max(2,Number(settings.ema.period)||14);
+  const tr=trueRanges(candles);
+  const atr=average(tr,period);
+  const sma=average(close,period);
+  const e=ema(close,period);
 
-  candles.forEach((c, i) => {
-    if (i === 0) {
-      result.push(sar);
-      return;
+  const std=close.map((v,i)=>{
+    if(sma[i]===null) return null;
+    const part=close.slice(i-period+1,i+1);
+    return Math.sqrt(part.reduce((s,x)=>s+(x-sma[i])**2,0)/period);
+  });
+
+  const bb={
+    upper:sma.map((v,i)=>v===null?null:v+2*std[i]),
+    middle:sma,
+    lower:sma.map((v,i)=>v===null?null:v-2*std[i])
+  };
+
+  const kc={
+    upper:sma.map((v,i)=>v===null||atr[i]===null?null:v+2*atr[i]),
+    middle:sma,
+    lower:sma.map((v,i)=>v===null||atr[i]===null?null:v-2*atr[i])
+  };
+
+  let obv=0;
+  const obvData=close.map((v,i)=>{
+    if(i>0){
+      if(v>close[i-1]) obv+=candles[i].volume;
+      if(v<close[i-1]) obv-=candles[i].volume;
     }
+    return obv;
+  });
 
-    sar = sar + acceleration * (extreme - sar);
+  const sar=Array(candles.length).fill(null);
+  let rising=true, extreme=candles[0].high, sarValue=candles[0].low, af=.02;
 
-    if (rising) {
-      sar = Math.min(sar, candles[i - 1].low);
-      if (c.low < sar) {
-        rising = false;
-        sar = extreme;
-        extreme = c.low;
-        acceleration = 0.02;
-      } else if (c.high > extreme) {
-        extreme = c.high;
-        acceleration = Math.min(acceleration + 0.02, 0.2);
+  for(let i=1;i<candles.length;i++){
+    sarValue=sarValue+af*(extreme-sarValue);
+    const c=candles[i];
+
+    if(rising){
+      sarValue=Math.min(sarValue,candles[i-1].low);
+      if(i>1) sarValue=Math.min(sarValue,candles[i-2].low);
+      if(c.low<sarValue){
+        rising=false;
+        sarValue=extreme;
+        extreme=c.low;
+        af=.02;
+      }else if(c.high>extreme){
+        extreme=c.high;
+        af=Math.min(.2,af+.02);
       }
-    } else {
-      sar = Math.max(sar, candles[i - 1].high);
-      if (c.high > sar) {
-        rising = true;
-        sar = extreme;
-        extreme = c.high;
-        acceleration = 0.02;
-      } else if (c.low < extreme) {
-        extreme = c.low;
-        acceleration = Math.min(acceleration + 0.02, 0.2);
+    }else{
+      sarValue=Math.max(sarValue,candles[i-1].high);
+      if(i>1) sarValue=Math.max(sarValue,candles[i-2].high);
+      if(c.high>sarValue){
+        rising=true;
+        sarValue=extreme;
+        extreme=c.high;
+        af=.02;
+      }else if(c.low<extreme){
+        extreme=c.low;
+        af=Math.min(.2,af+.02);
       }
     }
+    sar[i]=sarValue;
+  }
 
-    result.push(sar);
-  });
-
-  return result;
-}
-
-// جميع المؤشرات
-function getIndicators() {
-  const close = closes();
-  const sma20 = SMA(close, 20);
-  const ema20 = EMA(close, 20);
-  const std = STD(close, 20);
-  const atr = ATR(14);
+  const stoch=calcStochastic(candles,14);
+  const macd=calcMACD(close);
 
   return {
-    ema: EMA(close, 5),
-    sma: SMA(close, 5),
-    adx: ADX(),
-    sar: SAR(),
-    rsi: RSI(),
-    macd: MACD(),
-    stoch: STOCH(),
-    cci: CCI(),
-    williams: WILLIAMS(),
-    bbUpper: sma20.map((v, i) =>
-      v === null || std[i] === null ? null : v + 2 * std[i]),
-    bbLower: sma20.map((v, i) =>
-      v === null || std[i] === null ? null : v - 2 * std[i]),
-    keltnerUpper: ema20.map((v, i) =>
-      v === null || atr[i] === null ? null : v + 2 * atr[i]),
-    keltnerLower: ema20.map((v, i) =>
-      v === null || atr[i] === null ? null : v - 2 * atr[i]),
+    ema:e,
+    sma,
+    rsi:calcRSI(close,14),
+    macd,
+    stochastic:stoch,
+    cci:calcCCI(candles,20),
+    williams:calcWilliams(candles,14),
+    bollinger:bb,
     atr,
+    keltner:kc,
     std,
-    volume: volumes(),
-    obv: OBV(),
-    mfi: MFI(),
-    volumeSMA: SMA(volumes(), 5)
+    volume:candles.map(c=>c.volume),
+    obv:obvData,
+    mfi:calcMFI(candles,14),
+    volumeSma:average(candles.map(c=>c.volume),14),
+    sar
   };
 }
 
-function selected(id) {
-  return document.getElementById(id)?.checked ?? false;
+function enabled(id){
+  return !!($(id) && $(id).checked);
 }
 
-function drawLine(values, color, priceY, width = 2) {
+function drawGrid(w,h,min,max,left,right,top,bottom){
+  ctx.strokeStyle=COLORS.grid;
+  ctx.lineWidth=1;
+  ctx.font="11px Arial";
+  ctx.fillStyle=COLORS.text;
+
+  for(let i=0;i<=5;i++){
+    const y=top+(bottom-top)*i/5;
+    ctx.beginPath();
+    ctx.moveTo(left,y);
+    ctx.lineTo(right,y);
+    ctx.stroke();
+
+    const value=max-(max-min)*i/5;
+    ctx.fillText(value.toFixed(2),right+5,y+4);
+  }
+}
+
+function drawSeries(values,start,step,priceY,color,width=2,dashed=false){
+  ctx.save();
+  ctx.strokeStyle=color;
+  ctx.lineWidth=width;
+  if(dashed) ctx.setLineDash([5,4]);
+
   ctx.beginPath();
-  ctx.strokeStyle = color;
-  ctx.lineWidth = width;
+  let started=false;
 
-  let started = false;
-
-  const spacing = (canvas.width - 70) / candles.length;
-
-  values.forEach((v, i) => {
-    if (v === null || !Number.isFinite(v)) {
-      started = false;
+  values.forEach((v,i)=>{
+    if(v===null || !Number.isFinite(v)){
+      started=false;
       return;
     }
-
-    const x = 50 + i * spacing + spacing / 2;
-    const y = priceY(v);
-
-    if (!started) {
-      ctx.moveTo(x, y);
-      started = true;
-    } else {
-      ctx.lineTo(x, y);
-    }
+    const x=start+i*step;
+    const y=priceY(v);
+    if(!started){
+      ctx.moveTo(x,y);
+      started=true;
+    }else ctx.lineTo(x,y);
   });
 
   ctx.stroke();
+  ctx.restore();
 }
 
-function drawChart() {
-  const w = canvas.width;
-  const h = canvas.height;
+function drawMain(){
+  const rect=canvas.getBoundingClientRect();
+  const w=rect.width,h=rect.height;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle=COLORS.background;
+  ctx.fillRect(0,0,w,h);
 
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = C.bg;
-  ctx.fillRect(0, 0, w, h);
+  const {start,data}=getVisible();
+  if(!data.length) return;
 
-  if (!candles.length) return;
+  const left=12,right=w-65,top=18,bottom=h-25;
+  const highs=data.map(c=>c.high);
+  const lows=data.map(c=>c.low);
+  let min=Math.min(...lows),max=Math.max(...highs);
 
-  const indicators = getIndicators();
-  const values = [...candles.flatMap(c => [c.high, c.low])];
+  const values=calculate();
+  const overlayIds=["ema","sma","bollinger","keltner","sar"];
 
-  [
-    ["showEMA", indicators.ema],
-    ["showSMA", indicators.sma],
-    ["showBB", indicators.bbUpper, indicators.bbLower],
-    ["showKeltner", indicators.keltnerUpper, indicators.keltnerLower],
-    ["showSAR", indicators.sar]
-  ].forEach(([id, ...arrays]) => {
-    if (selected(id)) {
-      arrays.forEach(arr => arr.forEach(v => {
-        if (Number.isFinite(v)) values.push(v);
-      }));
+  overlayIds.forEach(id=>{
+    if(!enabled(id)) return;
+    const v=values[id];
+    if(!v) return;
+    const list=Array.isArray(v)?v:
+      id==="bollinger" ? [...v.upper,...v.lower] :
+      [...v.upper,...v.lower];
+
+    const nums=list.filter(x=>x!==null&&Number.isFinite(x));
+    if(nums.length){
+      min=Math.min(min,...nums);
+      max=Math.max(max,...nums);
     }
   });
 
-  const max = Math.max(...values) + 10;
-  const min = Math.min(...values) - 10;
-  const range = max - min || 1;
-  const top = 25;
-  const bottom = h - 35;
-  const height = bottom - top;
+  const padding=(max-min)*.12 || 1;
+  min-=padding;
+  max+=padding;
 
-  const priceY = v => bottom - (v - min) / range * height;
+  drawGrid(w,h,min,max,left,right,top,bottom);
 
-  // الشبكة
-  ctx.strokeStyle = C.grid;
-  ctx.lineWidth = 1;
-  ctx.fillStyle = C.gold;
-  ctx.font = "13px Arial";
+  const priceY=v=>bottom-(v-min)/(max-min)*(bottom-top);
+  const step=(right-left)/data.length;
+  const candleW=Math.max(3,Math.min(13,step*.62));
 
-  for (let i = 0; i <= 5; i++) {
-    const y = top + height / 5 * i;
+  data.forEach((c,i)=>{
+    const x=left+step*(i+.5);
+    const up=c.close>=c.open;
+    const color=up?COLORS.green:COLORS.red;
 
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(w, y);
-    ctx.stroke();
-
-    ctx.fillText(
-      (max - range / 5 * i).toFixed(2),
-      5,
-      y - 5
-    );
-  }
-
-  const spacing = (w - 70) / candles.length;
-  const bodyWidth = Math.min(18, spacing * 0.55);
-
-  // الشموع
-  candles.forEach((c, i) => {
-    const x = 50 + i * spacing + spacing / 2;
-    const color = c.close >= c.open ? C.green : C.red;
-
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle=color;
+    ctx.fillStyle=color;
+    ctx.lineWidth=1.4;
 
     ctx.beginPath();
-    ctx.moveTo(x, priceY(c.high));
-    ctx.lineTo(x, priceY(c.low));
+    ctx.moveTo(x,priceY(c.high));
+    ctx.lineTo(x,priceY(c.low));
     ctx.stroke();
 
-    ctx.fillStyle = color;
+    const y1=priceY(c.open);
+    const y2=priceY(c.close);
+    const bodyH=Math.max(1,Math.abs(y2-y1));
+
     ctx.fillRect(
-      x - bodyWidth / 2,
-      Math.min(priceY(c.open), priceY(c.close)),
-      bodyWidth,
-      Math.max(Math.abs(priceY(c.open) - priceY(c.close)), 3)
+      x-candleW/2,
+      Math.min(y1,y2),
+      candleW,
+      bodyH
     );
 
-    if (i === selectedCandle) {
-      ctx.strokeStyle = C.gold;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(
-        x - bodyWidth,
-        priceY(c.high) - 5,
-        bodyWidth * 2,
-        priceY(c.low) - priceY(c.high) + 10
-      );
+    const absolute=start+i;
+    if(absolute===selected){
+      ctx.strokeStyle=COLORS.gold;
+      ctx.lineWidth=1.5;
+      ctx.strokeRect(x-candleW/2-3,Math.min(y1,y2)-3,candleW+6,bodyH+6);
     }
   });
 
-  // المؤشرات المرسومة فوق السعر
-  if (selected("showEMA")) drawLine(indicators.ema, C.orange, priceY);
-  if (selected("showSMA")) drawLine(indicators.sma, C.blue, priceY);
+  const line=(id,color,width)=>{
+    if(!enabled(id)) return;
+    drawSeries(values[id].slice(start,start+data.length),
+      left+step/2,step,priceY,
+      settings[id].color || color,
+      settings[id].width || width);
+  };
 
-  if (selected("showBB")) {
-    drawLine(indicators.bbUpper, C.purple, priceY);
-    drawLine(indicators.bbLower, C.purple, priceY);
+  line("ema","#e8bd62",2);
+  line("sma","#56a8ff",2);
+
+  if(enabled("bollinger")){
+    const b=values.bollinger;
+    ["upper","middle","lower"].forEach((key,i)=>{
+      drawSeries(b[key].slice(start,start+data.length),
+        left+step/2,step,priceY,
+        i===1?"#d8b45a":"#7e8fa9",1.5,i!==1);
+    });
   }
 
-  if (selected("showKeltner")) {
-    drawLine(indicators.keltnerUpper, C.orange, priceY);
-    drawLine(indicators.keltnerLower, C.orange, priceY);
+  if(enabled("keltner")){
+    const b=values.keltner;
+    ["upper","middle","lower"].forEach((key,i)=>{
+      drawSeries(b[key].slice(start,start+data.length),
+        left+step/2,step,priceY,
+        i===1?"#b78cff":"#8b72b9",1.5,i!==1);
+    });
   }
 
-  if (selected("showSAR")) {
-    indicators.sar.forEach((v, i) => {
-      if (v === null) return;
-      const x = 50 + i * spacing + spacing / 2;
-
-      ctx.fillStyle = C.gold;
+  if(enabled("sar")){
+    ctx.fillStyle=settings.sar.color;
+    values.sar.slice(start,start+data.length).forEach((v,i)=>{
+      if(v===null) return;
       ctx.beginPath();
-      ctx.arc(x, priceY(v), 3, 0, Math.PI * 2);
+      ctx.arc(left+step*(i+.5),priceY(v),3,0,Math.PI*2);
       ctx.fill();
     });
   }
 
-  document.getElementById("candleCount").textContent = candles.length;
-  document.getElementById("selectedNumber").textContent =
-    selectedCandle < 0 ? "لا يوجد" : selectedCandle + 1;
-
-  drawSubcharts(indicators);
+  ctx.fillStyle=COLORS.text;
+  ctx.fillText("السعر",left,12);
 }
 
-// رسم المؤشرات في نوافذ مستقلة
-function drawSubcharts(ind) {
-  const definitions = [
-    ["showRSI", "RSI - القوة النسبية", ind.rsi, C.orange, [0, 100], [30, 70]],
-    ["showMACD", "MACD - تقارب وتباعد المتوسطات", ind.macd.line, C.blue, null, null],
-    ["showStochastic", "Stochastic", ind.stoch.k, C.purple, [0, 100], [20, 80]],
-    ["showCCI", "CCI", ind.cci, C.orange, null, [-100, 100]],
-    ["showWilliams", "Williams %R", ind.williams, C.blue, [-100, 0], [-80, -20]],
-    ["showATR", "ATR - متوسط المدى الحقيقي", ind.atr, C.orange],
-    ["showADX", "ADX - قوة الاتجاه", ind.adx, C.purple, [0, 100], [25]],
-    ["showStdDev", "Standard Deviation", ind.std, C.blue],
-    ["showVolume", "Volume - حجم التداول", ind.volume, C.green],
-    ["showOBV", "OBV - حجم التداول التراكمي", ind.obv, C.orange],
-    ["showMFI", "MFI - تدفق السيولة", ind.mfi, C.purple, [0, 100], [20, 80]],
-    ["showVolumeSMA", "Volume SMA - متوسط الحجم", ind.volumeSMA, C.blue]
+function subSeries(id,values){
+  const wrap=document.createElement("div");
+  wrap.className="panel";
+  wrap.style.marginTop="10px";
+  wrap.style.padding="10px";
+
+  const title=document.createElement("div");
+  title.style.color=COLORS.gold;
+  title.style.fontWeight="bold";
+  title.style.marginBottom="7px";
+  title.textContent=indicatorNames[id];
+
+  const cv=document.createElement("canvas");
+  cv.style.width="100%";
+  cv.style.height="125px";
+  cv.style.display="block";
+
+  wrap.append(title,cv);
+  indicatorArea.appendChild(wrap);
+
+  const r=cv.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=Math.round(r.width*dpr);
+  cv.height=Math.round(125*dpr);
+
+  const c=cv.getContext("2d");
+  c.scale(dpr,dpr);
+
+  const w=r.width,h=125;
+  c.fillStyle=COLORS.background;
+  c.fillRect(0,0,w,h);
+
+  const {start,data}=getVisible();
+  const shown=values.slice(start,start+data.length);
+  const nums=shown.filter(v=>v!==null&&Number.isFinite(v));
+
+  if(!nums.length) return;
+
+  let min=Math.min(...nums),max=Math.max(...nums);
+  if(min===max){min-=1;max+=1;}
+  const pad=(max-min)*.12;
+  min-=pad;max+=pad;
+
+  c.strokeStyle=COLORS.grid;
+  c.lineWidth=1;
+  for(let i=0;i<3;i++){
+    const y=10+(h-20)*i/2;
+    c.beginPath();c.moveTo(5,y);c.lineTo(w-5,y);c.stroke();
+  }
+
+  const xStep=(w-20)/Math.max(1,shown.length-1);
+  const y=v=>h-10-(v-min)/(max-min)*(h-20);
+
+  c.strokeStyle=settings[id].color||COLORS.gold;
+  c.lineWidth=settings[id].width||2;
+  c.beginPath();
+  let started=false;
+
+  shown.forEach((v,i)=>{
+    if(v===null||!Number.isFinite(v)){
+      started=false;return;
+    }
+    const px=10+i*xStep,py=y(v);
+    if(!started){c.moveTo(px,py);started=true;}
+    else c.lineTo(px,py);
+  });
+  c.stroke();
+
+  if(id==="rsi"){
+    [30,70].forEach(level=>{
+      const py=y(level);
+      c.strokeStyle="#8b7180";
+      c.setLineDash([4,4]);
+      c.beginPath();c.moveTo(5,py);c.lineTo(w-5,py);c.stroke();
+      c.setLineDash([]);
+    });
+  }
+}
+
+function drawMACD(){
+  if(!enabled("macd")) return;
+
+  const values=calculate().macd;
+  const wrap=document.createElement("div");
+  wrap.className="panel";
+  wrap.style.marginTop="10px";
+  wrap.style.padding="10px";
+
+  const title=document.createElement("div");
+  title.textContent="MACD";
+  title.style.color=COLORS.gold;
+  title.style.fontWeight="bold";
+
+  const cv=document.createElement("canvas");
+  cv.style.width="100%";
+  cv.style.height="125px";
+  cv.style.display="block";
+  wrap.append(title,cv);
+  indicatorArea.appendChild(wrap);
+
+  const r=cv.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  cv.width=r.width*dpr;cv.height=125*dpr;
+  const c=cv.getContext("2d");
+  c.scale(dpr,dpr);
+
+  const {start,data}=getVisible();
+  const line=values.line.slice(start,start+data.length);
+  const signal=values.signal.slice(start,start+data.length);
+  const hist=values.histogram.slice(start,start+data.length);
+
+  const all=[...line,...signal,...hist].filter(v=>v!==null);
+  if(!all.length) return;
+
+  let min=Math.min(0,...all),max=Math.max(0,...all);
+  if(min===max){min-=1;max+=1;}
+  const y=v=>115-(v-min)/(max-min)*105;
+  const zero=y(0);
+  const step=(r.width-20)/Math.max(1,data.length);
+
+  c.strokeStyle=COLORS.grid;
+  c.beginPath();c.moveTo(5,zero);c.lineTo(r.width-5,zero);c.stroke();
+
+  hist.forEach((v,i)=>{
+    if(v===null)return;
+    c.fillStyle=v>=0?COLORS.green:COLORS.red;
+    const x=10+(i+.5)*step;
+    c.fillRect(x,Math.min(y(v),zero),Math.max(2,step*.5),Math.abs(zero-y(v)));
+  });
+
+  const plot=(arr,color)=>{
+    c.strokeStyle=color;
+    c.lineWidth=2;
+    c.beginPath();
+    let started=false;
+    arr.forEach((v,i)=>{
+      if(v===null){started=false;return;}
+      const x=10+(i+.5)*step,py=y(v);
+      if(!started){c.moveTo(x,py);started=true;}
+      else c.lineTo(x,py);
+    });
+    c.stroke();
+  };
+
+  plot(line,COLORS.gold);
+  plot(signal,"#63a9ff");
+}
+
+function renderIndicators(){
+  indicatorArea.innerHTML="";
+  const v=calculate();
+
+  const ids=[
+    "rsi","stochastic","cci","williams","adx","atr",
+    "std","volume","obv","mfi","volumeSma"
   ];
 
-  subcharts.innerHTML = "";
+  ids.forEach(id=>{
+    if(enabled(id)) subSeries(id,v[id]);
+  });
 
-  definitions.forEach(([id, title, values, color, fixed, levels]) => {
-    if (!selected(id)) return;
+  drawMACD();
+}
 
-    const box = document.createElement("div");
-    box.style.cssText = `
-      background:#172b43;border:1px solid #34465c;
-      border-radius:10px;margin:14px 0;padding:12px;
-    `;
+function renderStats(){
+  if($("candleCount")) $("candleCount").textContent=candles.length;
+  if($("selectedNumber")) $("selectedNumber").textContent=
+    selected>=0 ? selected+1 : "—";
+}
 
-    const heading = document.createElement("h3");
-    heading.textContent = title;
-    heading.style.color = C.gold;
+function renderCandleEditor(){
+  if(!editor) return;
 
-    const chart = document.createElement("canvas");
-    chart.width = 1000;
-    chart.height = 180;
-    chart.style.cssText = "width:100%;height:auto;display:block";
+  const c=candles[selected];
+  if(!c){
+    editor.innerHTML="";
+    return;
+  }
 
-    box.append(heading, chart);
-    subcharts.appendChild(box);
+  editor.innerHTML=`
+    <div class="panel" style="margin-top:12px">
+      <div style="color:#d8b45a;font-weight:bold;margin-bottom:12px">
+        تعديل بيانات الشمعة رقم ${selected+1}
+      </div>
 
-    const subctx = chart.getContext("2d");
-    const valid = values.filter(Number.isFinite);
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
+        ${["open","high","low","close","volume"].map(key=>`
+          <label style="font-size:12px;color:#9eacc0">
+            ${key.toUpperCase()}
+            <input data-candle="${key}" type="number" step="any"
+              value="${Number(c[key].toFixed(3))}"
+              style="display:block;width:100%;margin-top:5px;padding:10px;background:#0d1727;color:white;border:1px solid #293951;border-radius:7px">
+          </label>
+        `).join("")}
+      </div>
 
-    if (!valid.length) {
-      subctx.fillStyle = C.white;
-      subctx.fillText("لا توجد بيانات كافية لحساب هذا المؤشر", 20, 40);
-      return;
-    }
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="primary" id="saveCandle">حفظ التعديل</button>
+        <button id="removeCandle">حذف الشمعة</button>
+      </div>
+    </div>
+  `;
 
-    let min = fixed ? fixed[0] : Math.min(...valid);
-    let max = fixed ? fixed[1] : Math.max(...valid);
-
-    if (max === min) {
-      max += 1;
-      min -= 1;
-    }
-
-    const padding = (max - min) * 0.1;
-    if (!fixed) {
-      max += padding;
-      min -= padding;
-    }
-
-    const y = v => 145 - ((v - min) / (max - min)) * 125;
-    const x = i => 45 + i * (900 / candles.length);
-
-    subctx.fillStyle = C.bg;
-    subctx.fillRect(0, 0, 1000, 180);
-
-    subctx.strokeStyle = C.grid;
-    subctx.lineWidth = 1;
-
-    [35, 75, 115, 155].forEach(level => {
-      subctx.beginPath();
-      subctx.moveTo(0, level);
-      subctx.lineTo(1000, level);
-      subctx.stroke();
+  $("saveCandle").onclick=()=>{
+    const next={};
+    editor.querySelectorAll("[data-candle]").forEach(input=>{
+      next[input.dataset.candle]=Number(input.value);
     });
 
-    if (levels) {
-      levels.forEach(level => {
-        subctx.strokeStyle = "#d5b45b88";
-        subctx.setLineDash([5, 5]);
-        subctx.beginPath();
-        subctx.moveTo(0, y(level));
-        subctx.lineTo(1000, y(level));
-        subctx.stroke();
-        subctx.setLineDash([]);
-      });
-    }
+    if(Object.values(next).some(v=>!Number.isFinite(v))) return;
+    if(next.high<Math.max(next.open,next.close) ||
+       next.low>Math.min(next.open,next.close) ||
+       next.high<next.low || next.volume<0) return;
 
-    if (id === "showVolume") {
-      const maximum = Math.max(...valid) || 1;
-      const barWidth = Math.max(3, 850 / candles.length * 0.6);
+    candles[selected]=next;
+    render();
+  };
 
-      values.forEach((v, i) => {
-        if (!Number.isFinite(v)) return;
-
-        const barHeight = v / maximum * 120;
-
-        subctx.fillStyle =
-          candles[i].close >= candles[i].open ? C.green : C.red;
-
-        subctx.fillRect(
-          x(i) - barWidth / 2,
-          155 - barHeight,
-          barWidth,
-          barHeight
-        );
-      });
-
-    } else if (id === "showMACD") {
-      const signal = ind.macd.signal;
-      const histogram = ind.macd.histogram;
-
-      histogram.forEach((v, i) => {
-        if (!Number.isFinite(v)) return;
-
-        subctx.fillStyle = v >= 0 ? C.green : C.red;
-        subctx.fillRect(x(i) - 3, y(0), 6, y(v) - y(0));
-      });
-
-      drawSubLine(subctx, values, x, y, C.blue);
-      drawSubLine(subctx, signal, x, y, C.orange);
-
-    } else {
-      drawSubLine(subctx, values, x, y, color);
-    }
-  });
+  $("removeCandle").onclick=deleteSelected;
 }
 
-function drawSubLine(context, values, x, y, color) {
-  context.beginPath();
-  context.strokeStyle = color;
-  context.lineWidth = 2;
-  let started = false;
+function renderSettings(){
+  if(!editor) return;
 
-  values.forEach((v, i) => {
-    if (!Number.isFinite(v)) {
-      started = false;
-      return;
-    }
-
-    if (!started) {
-      context.moveTo(x(i), y(v));
-      started = true;
-    } else {
-      context.lineTo(x(i), y(v));
-    }
-  });
-
-  context.stroke();
-}
-
-// لوحة تعديل الشمعة
-function updateEditor() {
-  if (selectedCandle < 0 || !candles[selectedCandle]) {
-    editor.innerHTML = `
-      <h3 style="color:#d5b45b">مختبر الشموع اليابانية</h3>
-      <p>اضغط على أي شمعة لتحديدها وتعديل أسعارها.</p>
-    `;
-    return;
-  }
-
-  const c = candles[selectedCandle];
-
-  editor.innerHTML = `
-    <h3 style="color:#d5b45b">تعديل الشمعة رقم ${selectedCandle + 1}</h3>
-
-    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
-      ${field("الافتتاح","open",c.open)}
-      ${field("الإغلاق","close",c.close)}
-      ${field("أعلى سعر","high",c.high)}
-      ${field("أدنى سعر","low",c.low)}
-      ${field("حجم التداول","volume",c.volume)}
+  const active=Object.keys(indicatorNames).filter(enabled);
+  const settingsHTML=`
+    <div class="panel">
+      <div style="color:#d8b45a;font-weight:bold;margin-bottom:12px">
+        إعدادات المؤشرات النشطة
+      </div>
+      ${
+        active.length ? active.map(id=>`
+          <div style="padding:10px 0;border-bottom:1px solid #293951">
+            <strong style="display:block;margin-bottom:8px">${indicatorNames[id]}</strong>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px">
+              <label style="font-size:11px;color:#9eacc0">
+                الفترة
+                <input type="number" min="2" max="200"
+                  data-setting="${id}" data-key="period"
+                  value="${settings[id].period}"
+                  style="width:100%;padding:8px;background:#0d1727;color:white;border:1px solid #293951;border-radius:6px">
+              </label>
+              <label style="font-size:11px;color:#9eacc0">
+                اللون
+                <input type="color"
+                  data-setting="${id}" data-key="color"
+                  value="${settings[id].color}"
+                  style="width:100%;height:35px;background:#0d1727;border:1px solid #293951;border-radius:6px">
+              </label>
+              <label style="font-size:11px;color:#9eacc0">
+                السُمك
+                <input type="number" min="1" max="5"
+                  data-setting="${id}" data-key="width"
+                  value="${settings[id].width}"
+                  style="width:100%;padding:8px;background:#0d1727;color:white;border:1px solid #293951;border-radius:6px">
+              </label>
+            </div>
+          </div>
+        `).join("") : `<div style="color:#9eacc0;font-size:13px">فعّل مؤشراً لعرض إعداداته.</div>`
+      }
     </div>
-
-    <p id="editorError" style="color:#ef5350"></p>
-    <button onclick="deleteCandle()" style="background:#ef5350;color:white">
-      حذف الشمعة
-    </button>
   `;
+
+  const old=editor.querySelector("#settingsPanel");
+  if(old) old.remove();
+
+  const box=document.createElement("div");
+  box.id="settingsPanel";
+  box.innerHTML=settingsHTML;
+  editor.prepend(box);
+
+  box.querySelectorAll("[data-setting]").forEach(input=>{
+    input.addEventListener("change",()=>{
+      const id=input.dataset.setting;
+      const key=input.dataset.key;
+      let value=key==="color" ? input.value : Number(input.value);
+
+      if(key==="period") value=Math.max(2,Math.min(200,value||14));
+      if(key==="width") value=Math.max(1,Math.min(5,value||2));
+
+      settings[id][key]=value;
+      render();
+    });
+  });
 }
 
-function field(label, key, value) {
-  return `
-    <label>
-      ${label}
-      <input type="number" step="0.01" value="${value}"
-        onchange="changePrice('${key}',this.value)"
-        style="width:100%;padding:10px;margin-top:5px;box-sizing:border-box">
-    </label>
-  `;
+function render(){
+  if(!canvas) return;
+  drawMain();
+  renderIndicators();
+  renderStats();
+  renderCandleEditor();
+  renderSettings();
 }
 
-function changePrice(key, value) {
-  const c = candles[selectedCandle];
-  if (!c || value === "" || !Number.isFinite(Number(value))) return;
+/* Mouse and touch navigation */
 
-  const updated = {...c, [key]: Number(value)};
+canvas.addEventListener("pointerdown",e=>{
+  dragging=true;
+  dragStart=e.clientX;
+  initialOffset=offset;
+  activePointer=e.pointerId;
+  canvas.setPointerCapture(e.pointerId);
+});
 
-  if (
-    updated.high < Math.max(updated.open, updated.close) ||
-    updated.low > Math.min(updated.open, updated.close) ||
-    updated.high < updated.low ||
-    updated.volume < 0
-  ) {
-    document.getElementById("editorError").textContent =
-      "تحقق من صحة الأسعار وحجم التداول.";
-    return;
-  }
+canvas.addEventListener("pointermove",e=>{
+  if(!dragging || activePointer!==e.pointerId) return;
+  const step=canvas.getBoundingClientRect().width/visibleCount;
+  const change=Math.round((dragStart-e.clientX)/Math.max(1,step));
+  offset=Math.max(0,Math.min(candles.length-5,initialOffset+change));
+  render();
+});
 
-  candles[selectedCandle] = updated;
-  drawChart();
-  updateEditor();
-}
+canvas.addEventListener("pointerup",e=>{
+  if(!dragging)return;
+  dragging=false;
+  activePointer=null;
 
-function addCandle() {
-  const previous = candles.length
-    ? candles[candles.length - 1].close
-    : undefined;
+  const rect=canvas.getBoundingClientRect();
+  const {start,data}=getVisible();
+  const left=12,right=rect.width-65;
+  const step=(right-left)/Math.max(1,data.length);
+  const index=Math.floor((e.clientX-rect.left-left)/step);
 
-  candles.push(generateCandle(previous));
-
-  if (candles.length > 30) candles.shift();
-
-  selectedCandle = candles.length - 1;
-  drawChart();
-  updateEditor();
-}
-
-function deleteCandle() {
-  if (selectedCandle < 0) return;
-
-  candles.splice(selectedCandle, 1);
-  selectedCandle = -1;
-
-  drawChart();
-  updateEditor();
-}
-
-function resetChart() {
-  candles = [];
-  let previous = 200;
-
-  for (let i = 0; i < 30; i++) {
-    const c = generateCandle(previous);
-    candles.push(c);
-    previous = c.close;
-  }
-
-  selectedCandle = -1;
-  drawChart();
-  updateEditor();
-}
-
-// تحديد الشمعة بالضغط
-canvas.addEventListener("click", event => {
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = (event.clientX - rect.left) * canvas.width / rect.width;
-
-  const spacing = (canvas.width - 70) / candles.length;
-  const index = Math.floor((mouseX - 50) / spacing);
-
-  if (index >= 0 && index < candles.length) {
-    selectedCandle = index;
-    drawChart();
-    updateEditor();
+  if(index>=0 && index<data.length){
+    selected=start+index;
+    render();
   }
 });
 
-// ربط جميع أزرار المؤشرات
-Object.keys(indicatorNames).forEach(id => {
-  document.getElementById(id)?.addEventListener("change", drawChart);
+canvas.addEventListener("pointercancel",()=>{
+  dragging=false;
+  activePointer=null;
 });
 
-// تشغيل المختبر
-resetChart();
+canvas.addEventListener("wheel",e=>{
+  e.preventDefault();
+  const change=e.deltaY>0?4:-4;
+  visibleCount=Math.max(12,Math.min(100,visibleCount+change));
+  offset=Math.min(offset,Math.max(0,candles.length-5));
+  render();
+},{passive:false});
+
+Object.keys(indicatorNames).forEach(id=>{
+  const input=$(id);
+  if(input) input.addEventListener("change",render);
+});
+
+window.addEventListener("resize",resizeCanvas);
+
+createData();
+resizeCanvas();
