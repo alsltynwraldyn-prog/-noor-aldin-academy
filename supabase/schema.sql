@@ -68,6 +68,7 @@ create table if not exists public.subscriptions (
   ends_at timestamptz,
   provider text not null default 'paytabs',
   provider_reference text,
+  order_id uuid unique references public.orders(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
