@@ -257,6 +257,63 @@
     };
   }
 
+  function distanceToSegment(point, a, b) {
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const length = dx * dx + dy * dy;
+    if (!length) return Math.hypot(point.x - a.x, point.y - a.y);
+    const t = Math.max(0, Math.min(1,
+      ((point.x-a.x)*dx + (point.y-a.y)*dy) / length
+    ));
+    return Math.hypot(point.x-(a.x+t*dx), point.y-(a.y+t*dy));
+  }
+
+  function drawingDistance(drawing, point, map) {
+    const a = pointXY(drawing.a, map);
+    if (drawing.type === "horizontal") return Math.abs(point.y-a.y);
+    const b = pointXY(drawing.b, map);
+    if (drawing.type === "trend") return distanceToSegment(point,a,b);
+    if (drawing.type === "fib") {
+      return Math.min(...[0,.236,.382,.5,.618,.786,1].map(level =>
+        Math.abs(point.y-(a.y+(b.y-a.y)*level))
+      ));
+    }
+    if (drawing.type === "rectangle") {
+      const left=Math.min(a.x,b.x), right=Math.max(a.x,b.x);
+      const top=Math.min(a.y,b.y), bottom=Math.max(a.y,b.y);
+      if(point.x>=left&&point.x<=right&&point.y>=top&&point.y<=bottom){
+        return Math.min(Math.abs(point.x-left),Math.abs(point.x-right),
+          Math.abs(point.y-top),Math.abs(point.y-bottom));
+      }
+      return Math.hypot(Math.max(left-point.x,0,point.x-right),
+        Math.max(top-point.y,0,point.y-bottom));
+    }
+    return Infinity;
+  }
+
+  let cursorDown = null;
+  chart.addEventListener("pointerdown", event => {
+    if (mode === "cursor") cursorDown = {x:event.clientX,y:event.clientY};
+  });
+  chart.addEventListener("pointerup", event => {
+    if (mode !== "cursor" || !cursorDown) return;
+    const moved=Math.hypot(event.clientX-cursorDown.x,event.clientY-cursorDown.y);
+    cursorDown=null;
+    if(moved>6) return;
+    const rect=layer.getBoundingClientRect();
+    const point={x:event.clientX-rect.left,y:event.clientY-rect.top};
+    const map=coordinates();
+    if(!map) return;
+    let nearest=-1, nearestDistance=12;
+    drawings.forEach((drawing,index)=>{
+      const distance=drawingDistance(drawing,point,map);
+      if(distance<nearestDistance){nearest=index;nearestDistance=distance;}
+    });
+    selectedDrawing=nearest;
+    drawAll();
+    updateToolbar();
+  });
+  chart.addEventListener("pointercancel",()=>{cursorDown=null;});
+
   function pointXY(point, map) {
     return {
       x: map.x(point.index),
