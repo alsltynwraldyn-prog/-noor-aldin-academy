@@ -1,13 +1,39 @@
+"use strict";
+
 function openLibrary() {
-  alert("المكتبة التعليمية قيد التجهيز");
+  window.location.href = "library.html";
 }
 
 function openLab() {
-  alert("مختبر التحليل التفاعلي قيد التجهيز");
+  window.location.href = "chart.html";
 }
 
 function openQuiz() {
-  alert("الاختبارات التعليمية قيد التجهيز");
+  window.location.href = "quiz.html";
 }
 
-console.log("أكاديمية نور الدين تعمل بنجاح");
+function openTheory() {
+  window.location.href = "theory.html";
+}
+
+function openIndicators() {
+  window.location.href = "indicators.html";
+}
+
+function openPatterns() {
+  window.location.href = "patterns.html";
+}
+
+function openEducation() {
+  window.location.href = "education.html";
+}
+
+function openAbout() {
+  window.location.href = "about.html";
+}
+
+function openContact() {
+  window.location.href = "contact.html";
+}
+
+console.log("أكاديمية نور الدين جاهزة");
