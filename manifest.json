@@ -1,11 +1,14 @@
 {
+  "id": "./",
   "name": "أكاديمية نور الدين",
   "short_name": "أكاديمية نور",
-  "description": "أكاديمية لتعليم التحليل الفني والأسواق المالية",
+  "description": "أكاديمية عربية لتعليم التحليل الفني والأسواق المالية",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#101827",
-  "theme_color": "#172b43",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#091321",
+  "theme_color": "#091321",
   "lang": "ar",
   "dir": "rtl"
 }
