@@ -246,7 +246,8 @@ function calcStochastic(data,period){
   });
 
   const d=k.map((v,i)=>{
-    if(i<period+2) return null;
+    // Three valid %K values are available at index period+1.
+    if(i<period+1) return null;
     const part=k.slice(i-2,i+1);
     if(part.some(x=>x===null)) return null;
     return part.reduce((a,b)=>a+b,0)/3;
