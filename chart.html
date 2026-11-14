@@ -5,78 +5,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101827">
-<title>المختبر الاحترافي | أكاديمية نور الدين</title>
-<link rel="stylesheet" href="style.css">
+<title>مختبر التداول | أكاديمية نور الدين</title>
 
 <style>
+:root{
+  --bg:#0b1220;
+  --panel:#131f32;
+  --panel2:#192940;
+  --gold:#d8b45a;
+  --text:#f4f5f7;
+  --muted:#9eacc0;
+  --green:#16c784;
+  --red:#ea3943;
+  --border:#293951;
+}
 *{box-sizing:border-box}
 body{
- margin:0;background:#101827;color:#edf1f7;
- font-family:Arial,sans-serif
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
 }
 header{
- background:#172b43;padding:22px 15px;
- text-align:center;border-bottom:2px solid #d5b45b
+  padding:17px 16px;
+  background:#101c2e;
+  border-bottom:1px solid var(--border);
 }
-header h1{color:#d5b45b;margin:0 0 8px}
-.container{max-width:1200px;margin:auto;padding:16px}
-.panel{
- background:#172b43;border:1px solid #34465c;
- border-radius:13px;padding:16px;margin:15px 0
+.head{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
 }
-h2,h3{color:#d5b45b}
-.muted{color:#aebbd0;font-size:13px;line-height:1.8}
-.chart-wrap{
- width:100%;overflow:hidden;background:#101827;
- border:1px solid #34465c;border-radius:10px
+.brand{color:var(--gold);font-size:20px;font-weight:bold}
+.subtitle{color:var(--muted);font-size:12px;margin-top:5px}
+.back{
+  color:var(--gold);
+  text-decoration:none;
+  border:1px solid var(--gold);
+  padding:9px 13px;
+  border-radius:8px;
+  font-size:13px;
 }
-#tradingChart{display:block;width:100%;height:auto}
-button{
- background:#d5b45b;color:#101827;border:0;
- padding:11px 15px;border-radius:7px;
- font-weight:bold;margin:5px;cursor:pointer
-}
-button.secondary{background:#263d58;color:white}
-.indicator-group{
- border:1px solid #34465c;border-radius:10px;
- margin:12px 0;overflow:hidden
-}
-.indicator-group summary{
- cursor:pointer;padding:14px;background:#1c3551;
- color:#d5b45b;font-weight:bold
-}
-.indicator-list{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
- gap:10px;padding:13px
-}
-.indicator-option{
- display:flex;align-items:center;gap:9px;
- background:#101827;border:1px solid #34465c;
- padding:12px;border-radius:8px;font-size:14px
-}
-.indicator-option input{accent-color:#d5b45b;width:17px;height:17px}
-.indicator-option small{display:block;color:#9eacc0;margin-top:4px}
-.legend{display:flex;flex-wrap:wrap;gap:14px;margin:12px 0}
-.legend span{font-size:13px}
-.dot{
- display:inline-block;width:9px;height:9px;
- border-radius:50%;margin-left:5px
-}
+main{max-width:1200px;margin:auto;padding:16px}
+.page-title{margin:8px 0 5px;font-size:23px}
+.description{color:var(--muted);font-size:13px;line-height:1.8}
 .stats{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
- gap:10px
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:17px 0;
 }
 .stat{
- background:#101827;padding:12px;border-radius:8px;
- border:1px solid #34465c
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
 }
-.stat small{color:#9eacc0}
-.stat strong{display:block;color:#d5b45b;margin-top:7px}
-a{color:#d5b45b;text-decoration:none}
+.stat small{color:var(--muted);display:block;margin-bottom:7px}
+.stat strong{color:var(--gold);font-size:18px}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:15px;
+}
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.panel-title{font-weight:bold;color:var(--gold)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+button{
+  border:1px solid var(--gold);
+  background:#24334a;
+  color:var(--text);
+  padding:10px 13px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+button.primary{background:var(--gold);color:#101827}
+button:active{transform:scale(.98)}
+.chart-wrap{
+  width:100%;
+  min-height:320px;
+  position:relative;
+  background:#0d1727;
+  border:1px solid var(--border);
+  border-radius:9px;
+  overflow:hidden;
+}
+#tradingChart{
+  display:block;
+  width:100%;
+  height:360px;
+}
+#indicatorCharts{margin-top:12px}
+#editor{margin-top:12px}
+.indicator-groups{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.indicator-group{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px;
+}
+.indicator-group h3{
+  margin:0 0 12px;
+  color:var(--gold);
+  font-size:15px;
+}
+.indicator-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:11px;
+}
+.indicator{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#e7edf6;
+  font-size:13px;
+}
+.indicator input{
+  accent-color:var(--gold);
+  width:16px;
+  height:16px;
+}
+.note{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.8;
+  margin-top:12px;
+}
+footer{
+  text-align:center;
+  color:var(--muted);
+  padding:22px 10px;
+  font-size:12px;
+}
 @media(max-width:600px){
- .container{padding:10px}
- .panel{padding:12px}
- header h1{font-size:22px}
+  main{padding:11px}
+  .stats{gap:7px}
+  .stat{padding:9px}
+  .stat strong{font-size:15px}
+  .indicator-groups{grid-template-columns:1fr}
+  #tradingChart{height:300px}
+  .page-title{font-size:20px}
 }
 </style>
 </head>
@@ -84,186 +171,121 @@ a{color:#d5b45b;text-decoration:none}
 <body>
 
 <header>
-<h1>أكاديمية نور الدين</h1>
-<p>المختبر الاحترافي للتحليل الفني والأسواق المالية</p>
+  <div class="head">
+    <div>
+      <div class="brand">أكاديمية نور الدين</div>
+      <div class="subtitle">منصة تعليم وتحليل الأسواق المالية</div>
+    </div>
+    <a class="back" href="index.html">العودة للرئيسية</a>
+  </div>
 </header>
 
-<main class="container">
+<main>
 
-<section class="panel">
-<h2>مختبر التحليل الفني</h2>
-<p class="muted">
-بيئة تعليمية تفاعلية لدراسة حركة الأسعار وتجربة المؤشرات
-الفنية وفهم سلوك الأسواق المالية.
-</p>
+  <h1 class="page-title">مختبر التحليل الفني</h1>
+  <div class="description">
+    بيئة تفاعلية للتدريب على قراءة الشموع اليابانية والمؤشرات الفنية
+    واختبار أدوات التحليل على بيانات تجريبية.
+  </div>
 
-<div class="stats">
-<div class="stat">
-<small>عدد الشموع</small>
-<strong id="candleCount">--</strong>
-</div>
-<div class="stat">
-<small>الشمعة المحددة</small>
-<strong id="selectedNumber">لا يوجد</strong>
-</div>
-<div class="stat">
-<small>نوع البيانات</small>
-<strong>تجريبية</strong>
-</div>
-</div>
-</section>
+  <section class="stats">
+    <div class="stat">
+      <small>عدد الشموع</small>
+      <strong id="candleCount">—</strong>
+    </div>
+    <div class="stat">
+      <small>الشمعة المحددة</small>
+      <strong id="selectedNumber">—</strong>
+    </div>
+    <div class="stat">
+      <small>حالة المختبر</small>
+      <strong style="font-size:14px">تجريبي</strong>
+    </div>
+  </section>
 
-<section class="panel">
-<h3>الرسم البياني</h3>
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title">الرسم البياني للشموع اليابانية</div>
+      <div class="actions">
+        <button class="primary" onclick="addCandle()">＋ إضافة شمعة</button>
+        <button onclick="resetChart()">إعادة ضبط</button>
+      </div>
+    </div>
 
-<div class="chart-wrap">
-<canvas id="tradingChart" width="1000" height="560"></canvas>
-</div>
+    <div class="chart-wrap">
+      <canvas id="tradingChart"></canvas>
+    </div>
 
-<div class="legend">
-<span><i class="dot" style="background:#00c087"></i>صاعدة</span>
-<span><i class="dot" style="background:#ef5350"></i>هابطة</span>
-<span><i class="dot" style="background:#e5b94f"></i>EMA</span>
-<span><i class="dot" style="background:#42a5f5"></i>SMA</span>
-</div>
+    <div id="indicatorCharts"></div>
+    <div id="editor"></div>
 
-<button onclick="addCandle()">إضافة شمعة</button>
-<button class="secondary" onclick="resetChart()">إعادة ضبط</button>
-</section>
+    <div class="note">
+      ملاحظة: البيانات المعروضة في هذه المرحلة تجريبية لأغراض التعليم،
+      ولا تمثل أسعار السوق الحقيقية أو توصيات تداول.
+    </div>
+  </section>
 
-<section class="panel">
-<h3>مكتبة المؤشرات الفنية</h3>
-<p class="muted">
-اختر المؤشرات التي تريد دراستها وعرضها على الرسم البياني.
-يمكن تشغيل أكثر من مؤشر في الوقت نفسه.
-</p>
+  <section class="panel">
+    <div class="panel-head">
+      <div class="panel-title">مكتبة المؤشرات الفنية</div>
+    </div>
 
-<details class="indicator-group" open>
-<summary>مؤشرات الاتجاه Trend</summary>
-<div class="indicator-list">
+    <div class="indicator-groups">
 
-<label class="indicator-option">
-<input type="checkbox" id="showEMA">
-<span>EMA <small>المتوسط المتحرك الأسي</small></span>
-</label>
+      <div class="indicator-group">
+        <h3>مؤشرات الاتجاه</h3>
+        <div class="indicator-list">
+          <label class="indicator"><input type="checkbox" id="ema"> EMA</label>
+          <label class="indicator"><input type="checkbox" id="sma"> SMA</label>
+          <label class="indicator"><input type="checkbox" id="adx"> ADX</label>
+          <label class="indicator"><input type="checkbox" id="sar"> Parabolic SAR</label>
+        </div>
+      </div>
 
-<label class="indicator-option">
-<input type="checkbox" id="showSMA">
-<span>SMA <small>المتوسط المتحرك البسيط</small></span>
-</label>
+      <div class="indicator-group">
+        <h3>مؤشرات الزخم</h3>
+        <div class="indicator-list">
+          <label class="indicator"><input type="checkbox" id="rsi"> RSI</label>
+          <label class="indicator"><input type="checkbox" id="macd"> MACD</label>
+          <label class="indicator"><input type="checkbox" id="stochastic"> Stochastic</label>
+          <label class="indicator"><input type="checkbox" id="cci"> CCI</label>
+          <label class="indicator"><input type="checkbox" id="williams"> Williams %R</label>
+        </div>
+      </div>
 
-<label class="indicator-option">
-<input type="checkbox" id="showADX">
-<span>ADX <small>قوة الاتجاه</small></span>
-</label>
+      <div class="indicator-group">
+        <h3>مؤشرات التقلب</h3>
+        <div class="indicator-list">
+          <label class="indicator"><input type="checkbox" id="bollinger"> Bollinger Bands</label>
+          <label class="indicator"><input type="checkbox" id="atr"> ATR</label>
+          <label class="indicator"><input type="checkbox" id="keltner"> Keltner Channels</label>
+          <label class="indicator"><input type="checkbox" id="std"> Standard Deviation</label>
+        </div>
+      </div>
 
-<label class="indicator-option">
-<input type="checkbox" id="showSAR">
-<span>Parabolic SAR <small>نقاط انعكاس الاتجاه</small></span>
-</label>
+      <div class="indicator-group">
+        <h3>مؤشرات الحجم</h3>
+        <div class="indicator-list">
+          <label class="indicator"><input type="checkbox" id="volume"> Volume</label>
+          <label class="indicator"><input type="checkbox" id="obv"> OBV</label>
+          <label class="indicator"><input type="checkbox" id="mfi"> MFI</label>
+          <label class="indicator"><input type="checkbox" id="volumeSma"> Volume SMA</label>
+        </div>
+      </div>
 
-</div>
-</details>
+    </div>
 
-<details class="indicator-group">
-<summary>مؤشرات الزخم Momentum</summary>
-<div class="indicator-list">
-
-<label class="indicator-option">
-<input type="checkbox" id="showRSI">
-<span>RSI <small>القوة النسبية</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showMACD">
-<span>MACD <small>تقارب وتباعد المتوسطات</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showStochastic">
-<span>Stochastic <small>مؤشر الاستوكاستك</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showCCI">
-<span>CCI <small>قناة السلع</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showWilliams">
-<span>Williams %R <small>مؤشر ويليامز</small></span>
-</label>
-
-</div>
-</details>
-
-<details class="indicator-group">
-<summary>مؤشرات التقلب Volatility</summary>
-<div class="indicator-list">
-
-<label class="indicator-option">
-<input type="checkbox" id="showBB">
-<span>Bollinger Bands <small>نطاقات بولينجر</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showATR">
-<span>ATR <small>متوسط المدى الحقيقي</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showKeltner">
-<span>Keltner Channels <small>قنوات كيلتنر</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showStdDev">
-<span>Standard Deviation <small>الانحراف المعياري</small></span>
-</label>
-
-</div>
-</details>
-
-<details class="indicator-group">
-<summary>مؤشرات الحجم Volume</summary>
-<div class="indicator-list">
-
-<label class="indicator-option">
-<input type="checkbox" id="showVolume">
-<span>Volume <small>حجم التداول</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showOBV">
-<span>OBV <small>حجم التداول التراكمي</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showMFI">
-<span>MFI <small>تدفق السيولة</small></span>
-</label>
-
-<label class="indicator-option">
-<input type="checkbox" id="showVolumeSMA">
-<span>Volume SMA <small>متوسط حجم التداول</small></span>
-</label>
-
-</div>
-</details>
-
-</section>
-
-<section class="panel">
-<h3>معلومات تعليمية</h3>
-<p class="muted">
-المختبر يستخدم بيانات اصطناعية لأغراض التعلم والتجربة.
-لا تمثل النتائج توصيات استثمارية أو أسعارًا حقيقية.
-</p>
-</section>
-
-<a href="index.html">العودة إلى الصفحة الرئيسية</a>
+    <div class="note">
+      فعّل المؤشر من القائمة لعرضه. مؤشرات السعر تظهر فوق الشموع،
+      ومؤشرات الزخم والحجم تظهر في لوحات مستقلة أسفل الرسم.
+    </div>
+  </section>
 
 </main>
+
+<footer>
+  أكاديمية نور الدين لتعليم التحليل الفني والأسواق المالية
+</footer>
 
 <script src="chart.js"></script>
 </body>
