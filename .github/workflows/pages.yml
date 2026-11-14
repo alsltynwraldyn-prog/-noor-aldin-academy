@@ -23,6 +23,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Check JavaScript syntax
+        run: |
+          node --check script.js
+          node --check chart.js
+          node --check drawing.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload site
