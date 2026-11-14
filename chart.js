@@ -644,7 +644,7 @@ function subSeries(id,values){
   c.fillRect(0,0,w,h);
 
   const {start,data}=getVisible();
-  const xStep=(w-20)/Math.max(1,data.length-1);
+  let xStep=(w-20)/Math.max(1,data.length-1);
 
   if(id==="stochastic"){
     const k=values.k.slice(start,start+data.length);
@@ -685,7 +685,7 @@ function subSeries(id,values){
     c.beginPath();c.moveTo(5,y);c.lineTo(w-5,y);c.stroke();
   }
 
-  const xStep=(w-20)/Math.max(1,shown.length-1);
+  xStep=(w-20)/Math.max(1,shown.length-1);
   const y=v=>h-10-(v-min)/(max-min)*(h-20);
 
   if(id==="volume"){
