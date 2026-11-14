@@ -36,4 +36,4 @@ function openContact() {
   window.location.href = "contact.html";
 }
 
-console.log("أكاديمية نور الدين جاهزة");
+console.log("ARVYQEN جاهزة");
