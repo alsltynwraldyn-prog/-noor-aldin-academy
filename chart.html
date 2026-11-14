@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المختبر التفاعلي | أكاديمية نور الدين</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h1>أكاديمية نور الدين</h1>
+    <p>المختبر التفاعلي للتحليل الفني</p>
+  </header>
+
+  <main class="container">
+    <h2>مختبر الرسوم البيانية</h2>
+
+    <div id="chart-container">
+      <canvas id="tradingChart" width="900" height="450"></canvas>
+    </div>
+
+    <div class="controls">
+      <button onclick="addCandle()">إضافة شمعة</button>
+      <button onclick="resetChart()">إعادة ضبط</button>
+    </div>
+
+    <a href="index.html">العودة للرئيسية</a>
+  </main>
+
+  <script src="chart.js"></script>
+</body>
+</html>
