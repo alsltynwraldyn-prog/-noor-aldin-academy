@@ -7,12 +7,12 @@ body {
   background: #101827;
   color: #ffffff;
   font-family: Arial, sans-serif;
+  text-align: center;
 }
 
 header {
-  background: linear-gradient(135deg, #172b43, #263e59);
+  background: linear-gradient(135deg, #102039, #263e59);
   padding: 35px 15px;
-  text-align: center;
   border-bottom: 3px solid #d5aa54;
 }
 
@@ -21,31 +21,86 @@ h1 {
   font-size: 30px;
 }
 
+h2, h3 {
+  color: #e9bd65;
+}
+
 main {
   padding: 20px;
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
 }
 
-.card {
+.card, section {
   background: #1d2d42;
-  margin: 15px 0;
+  margin: 15px auto;
   padding: 25px;
   border-radius: 14px;
   border: 1px solid #344a63;
+  max-width: 700px;
 }
 
 button {
-  background: #d5aa54;
+  background: linear-gradient(135deg, #e9bd65, #c99a3c);
   color: #101827;
   border: none;
   padding: 14px 25px;
   border-radius: 9px;
   font-size: 16px;
   font-weight: bold;
+  cursor: pointer;
+  margin: 8px;
+}
+
+button:hover {
+  transform: translateY(-2px);
 }
 
 p {
   color: #d3dbe6;
   line-height: 1.8;
+}
+
+a {
+  display: inline-block;
+  color: #e9bd65;
+  margin: 20px;
+  text-decoration: none;
+}
+
+input, textarea {
+  display: block;
+  width: 100%;
+  max-width: 500px;
+  margin: 12px auto;
+  padding: 13px;
+  border-radius: 8px;
+  border: 1px solid #344a63;
+  background: #101827;
+  color: white;
+}
+
+canvas {
+  max-width: 100%;
+  background: #101827;
+  border: 1px solid #344a63;
+  border-radius: 10px;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 25px;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .card, section {
+    padding: 18px;
+  }
+
+  button {
+    width: 100%;
+  }
 }
