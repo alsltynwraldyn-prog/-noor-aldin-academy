@@ -27,3 +27,17 @@ A production flow must:
 
 ## 6) Before launch
 Configure SMTP, domain and HTTPS; set real plan prices; complete merchant KYC; configure PayTabs recurring billing and webhook verification; review privacy/terms and tax obligations; test signup, email confirmation, password reset, checkout success/failure, refunds, renewal, cancellation and expiry. The current static GitHub Pages deployment alone cannot safely hold payment secrets or run a trusted webhook.
+
+## 7) Deploy server functions
+Install the Supabase CLI, link the project, and deploy both functions:
+```sh
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+supabase secrets set PAYTABS_SERVER_KEY=YOUR_SERVER_KEY PAYTABS_PROFILE_ID=YOUR_PROFILE_ID SITE_URL=https://YOUR_PUBLISHED_SITE_URL
+supabase functions deploy create-checkout
+supabase functions deploy paytabs-callback --no-verify-jwt
+```
+The callback is intentionally public because PayTabs calls it server-to-server; it independently verifies the transaction by querying PayTabs with the server key before activating a membership. Keep `SUPABASE_SERVICE_ROLE_KEY` and `PAYTABS_SERVER_KEY` only in Supabase-managed secrets, never in the repository or browser.
+
+## 8) Subscription model limitation
+The included checkout creates a paid fixed-term membership (one month or one year) and calculates its expiry. It does not silently auto-charge a card. Automatic renewal requires PayTabs recurring billing/tokenization to be enabled for the merchant profile, a compliant customer consent flow, stored payment tokens handled server-side, retry/cancellation logic, and separate testing. Until that is implemented and approved, renewals are manual.
