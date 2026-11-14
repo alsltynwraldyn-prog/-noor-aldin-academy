@@ -1,7 +1,7 @@
 
 "use strict";
 
-/* NOUR ALDIN - DRAWING TOOLS */
+/* ARVYQEN - DRAWING TOOLS */
 
 (function () {
   const chart = document.getElementById("tradingChart");
