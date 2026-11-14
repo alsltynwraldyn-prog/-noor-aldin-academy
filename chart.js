@@ -2,7 +2,7 @@
 "use strict";
 
 /* =========================================
-   NOUR ALDIN ACADEMY
+   ARVYQEN
    Interactive Technical Analysis Engine
 ========================================= */
 
