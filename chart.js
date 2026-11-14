@@ -220,14 +220,14 @@ function calcRSI(values,period){
   return out;
 }
 
-function calcMACD(values){
+function calcMACD(values,signalPeriod=9){
   const fast=ema(values,12);
   const slow=ema(values,26);
   const line=values.map((v,i)=>
     fast[i]===null || slow[i]===null ? null : fast[i]-slow[i]
   );
 
-  const signal=emaNullable(line,9);
+  const signal=emaNullable(line,signalPeriod);
 
   const histogram=line.map((v,i)=>
     v===null || signal[i]===null ? null : v-signal[i]
@@ -369,10 +369,11 @@ function calculate(){
       close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod-2*bbStd[i])
   };
 
+  const keltnerMiddle=average(close,periodFor("keltner"));
   const kc={
-    upper:sma.map((v,i)=>v===null||atr[i]===null?null:v+2*atr[i]),
-    middle:sma,
-    lower:sma.map((v,i)=>v===null||atr[i]===null?null:v-2*atr[i])
+    upper:keltnerMiddle.map((v,i)=>v===null||atr[i]===null?null:v+2*atr[i]),
+    middle:keltnerMiddle,
+    lower:keltnerMiddle.map((v,i)=>v===null||atr[i]===null?null:v-2*atr[i])
   };
 
   let obv=0;
@@ -420,7 +421,7 @@ function calculate(){
   }
 
   const stoch=calcStochastic(candles,periodFor("stochastic"));
-  const macd=calcMACD(close);
+  const macd=calcMACD(close,periodFor("macd"));
 
   return {
     ema:e,
@@ -670,6 +671,9 @@ function subSeries(id,values){
   if(!nums.length) return;
 
   let min=Math.min(...nums),max=Math.max(...nums);
+  if(id==="rsi"||id==="stochastic"||id==="mfi"){min=0;max=100;}
+  if(id==="williams"){min=-100;max=0;}
+  if(id==="volume") min=0;
   if(min===max){min-=1;max+=1;}
   const pad=(max-min)*.12;
   min-=pad;max+=pad;
@@ -878,13 +882,13 @@ function renderSettings(){
           <div style="padding:10px 0;border-bottom:1px solid #293951">
             <strong style="display:block;margin-bottom:8px">${indicatorNames[id]}</strong>
             <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px">
-              <label style="font-size:11px;color:#9eacc0">
-                الفترة
+              ${id==="sar"||id==="volume" ? "" : `<label style="font-size:11px;color:#9eacc0">
+                ${id==="macd" ? "فترة الإشارة" : "الفترة"}
                 <input type="number" min="2" max="200"
                   data-setting="${id}" data-key="period"
                   value="${settings[id].period}"
                   style="width:100%;padding:8px;background:#0d1727;color:white;border:1px solid #293951;border-radius:6px">
-              </label>
+              </label>`}
               <label style="font-size:11px;color:#9eacc0">
                 اللون
                 <input type="color"
