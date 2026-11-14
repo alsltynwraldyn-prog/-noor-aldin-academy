@@ -1,129 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#091321">
 <title>المكتبة التعليمية | أكاديمية نور الدين</title>
 <link rel="stylesheet" href="style.css">
+<style>
+.progress-panel{background:#131f32;border:1px solid #293951;border-radius:12px;padding:16px;margin:18px 0}
+.progress-track{height:10px;background:#293951;border-radius:20px;overflow:hidden;margin:10px 0}
+.progress-fill{height:100%;width:0;background:#d8b45a;transition:width .2s}
+.lesson-status{color:#d8b45a;font-size:12px;font-weight:bold}
+.lesson-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.lesson-actions button,.lesson-actions a{flex:1;text-align:center}
+.lesson-content{line-height:2}
+.lesson-content h3{color:#d8b45a;margin-top:20px}
+.lesson-content li{margin:8px 0}
+</style>
 </head>
 <body>
-
-<header>
-<h1>أكاديمية نور الدين</h1>
-<p>المكتبة التعليمية للتحليل الفني والأسواق المالية</p>
-</header>
-
+<header><div class="header-inner"><a class="brand" href="index.html">أكاديمية نور الدين<small>المكتبة التعليمية</small></a><a class="back" href="education.html">المسار التعليمي</a></div></header>
 <main>
-
-<div id="home">
-<div class="card">
-<h2>المكتبة التعليمية</h2>
-<p>تعلم التحليل الفني من الصفر حتى الاحتراف.</p>
+<section class="hero">
+<div class="eyebrow">LEARN AT YOUR PACE</div>
+<h1>تعلّم خطوة بخطوة</h1>
+<p>ابدأ بالأساسيات، وأنهِ كل درس بعد فهمه. تقدمك يُحفظ على هذا الجهاز لتكمل من حيث توقفت.</p>
+</section>
+<section class="progress-panel" aria-live="polite">
+<strong>تقدمك في المكتبة</strong>
+<div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+<p id="progressText" class="muted">أكملت 0 من 5 دروس</p>
+<a id="continueButton" class="button" href="#lesson1" onclick="showLesson(1);return false">ابدأ أول درس</a>
+</section>
+<div id="home" class="grid">
+<article class="card"><span class="lesson-status" id="status1">لم يبدأ</span><h2>01 · أساسيات التداول</h2><p>الأسواق، أنواع الأصول، أوامر التداول، السبريد والرافعة المالية.</p><button onclick="showLesson(1)">افتح الدرس</button></article>
+<article class="card"><span class="lesson-status" id="status2">لم يبدأ</span><h2>02 · الشموع اليابانية</h2><p>افهم الافتتاح والإغلاق والظلال وما تخبرك به الشمعة.</p><button onclick="showLesson(2)">افتح الدرس</button></article>
+<article class="card"><span class="lesson-status" id="status3">لم يبدأ</span><h2>03 · الدعوم والمقاومات</h2><p>تعرّف على المناطق السعرية وكيفية التعامل معها دون افتراض أنها مضمونة.</p><button onclick="showLesson(3)">افتح الدرس</button></article>
+<article class="card"><span class="lesson-status" id="status4">لم يبدأ</span><h2>04 · الاتجاهات السعرية</h2><p>ميّز الاتجاه الصاعد والهابط والعرضي باستخدام القمم والقيعان.</p><button onclick="showLesson(4)">افتح الدرس</button></article>
+<article class="card"><span class="lesson-status" id="status5">لم يبدأ</span><h2>05 · إدارة رأس المال</h2><p>تعلّم تحديد المخاطرة ووقف الخسارة وحجم المركز قبل الصفقة.</p><button onclick="showLesson(5)">افتح الدرس</button></article>
 </div>
-
-<div class="card">
-<h2>أساسيات التداول</h2>
-<p>تعرف على الأسواق المالية ومصطلحات التداول.</p>
-<button onclick="showLesson(1)">ابدأ التعلم</button>
-</div>
-
-<div class="card">
-<h2>الشموع اليابانية</h2>
-<p>تعلم قراءة الشموع وفهم حركة السعر.</p>
-<button onclick="showLesson(2)">ابدأ التعلم</button>
-</div>
-
-<div class="card">
-<h2>الدعوم والمقاومات</h2>
-<p>تعلم تحديد المناطق السعرية المهمة.</p>
-<button onclick="showLesson(3)">ابدأ التعلم</button>
-</div>
-
-<div class="card">
-<h2>الاتجاهات السعرية</h2>
-<p>تعرف على الاتجاه الصاعد والهابط والعرضي.</p>
-<button onclick="showLesson(4)">ابدأ التعلم</button>
-</div>
-
-<div class="card">
-<h2>إدارة رأس المال</h2>
-<p>تعلم حماية رأس المال وإدارة المخاطر.</p>
-<button onclick="showLesson(5)">ابدأ التعلم</button>
-</div>
-</div>
-
-<div id="lesson1" class="lesson card" hidden>
-<button onclick="goHome()">رجوع</button>
-<h2>أساسيات التداول</h2>
-<p>التداول هو شراء وبيع الأصول المالية بهدف الاستفادة من تغير أسعارها.</p>
-<h3>أهم المصطلحات</h3>
-<p>Buy: الشراء.</p>
-<p>Sell: البيع.</p>
-<p>Leverage: الرافعة المالية، وهي تزيد الأرباح والخسائر المحتملة.</p>
-<p>Spread: الفرق بين سعر الشراء والبيع.</p>
-<p>Lot: حجم الصفقة.</p>
-</div>
-
-<div id="lesson2" class="lesson card" hidden>
-<button onclick="goHome()">رجوع</button>
-<h2>الشموع اليابانية</h2>
-<p>الشمعة تعرض الافتتاح والإغلاق وأعلى وأدنى سعر خلال فترة محددة.</p>
-<p>الجسم يمثل الفرق بين الافتتاح والإغلاق.</p>
-<p>الفتيل العلوي يمثل أعلى سعر.</p>
-<p>الفتيل السفلي يمثل أدنى سعر.</p>
-<p>الشمعة الصاعدة يكون إغلاقها أعلى من افتتاحها.</p>
-<p>الشمعة الهابطة يكون إغلاقها أقل من افتتاحها.</p>
-</div>
-
-<div id="lesson3" class="lesson card" hidden>
-<button onclick="goHome()">رجوع</button>
-<h2>الدعوم والمقاومات</h2>
-<p>الدعم منطقة قد يظهر عندها ضغط شرائي.</p>
-<p>المقاومة منطقة قد يظهر عندها ضغط بيعي.</p>
-<p>تزداد أهمية المنطقة عند تكرار تفاعل السعر معها، لكنها لا تضمن الانعكاس.</p>
-</div>
-
-<div id="lesson4" class="lesson card" hidden>
-<button onclick="goHome()">رجوع</button>
-<h2>الاتجاهات السعرية</h2>
-<p>الاتجاه الصاعد: قمم وقيعان أعلى.</p>
-<p>الاتجاه الهابط: قمم وقيعان أدنى.</p>
-<p>الاتجاه العرضي: حركة السعر ضمن نطاق.</p>
-</div>
-
-<div id="lesson5" class="lesson card" hidden>
-<button onclick="goHome()">رجوع</button>
-<h2>إدارة رأس المال</h2>
-<p>حدد نسبة المخاطرة قبل دخول الصفقة.</p>
-<p>استخدم وقف الخسارة.</p>
-<p>احسب حجم العقد وفق المسافة إلى وقف الخسارة.</p>
-<p>لا تخاطر بأموال لا تستطيع تحمل خسارتها.</p>
-</div>
-
-<div class="card">
-<button onclick="location.href='index.html'">العودة للرئيسية</button>
-</div>
-
+<section id="lesson1" class="lesson card" hidden><button onclick="goHome()">← المكتبة</button><h2>01 · أساسيات التداول</h2><div class="lesson-content"><p>التداول هو شراء وبيع أصول مالية في أسواق مختلفة. قبل التفكير في الربح، افهم طبيعة الأصل الذي تتعامل معه والمخاطر المرتبطة به.</p><h3>مصطلحات أساسية</h3><ul><li><b>Buy / شراء:</b> فتح مركز يستفيد من ارتفاع السعر.</li><li><b>Sell / بيع:</b> فتح مركز يستفيد من انخفاض السعر، وفق نوع الأداة وشروط الوسيط.</li><li><b>Spread / السبريد:</b> الفرق بين سعر الشراء وسعر البيع.</li><li><b>Leverage / الرافعة:</b> تتيح التعرض لمركز أكبر من الهامش المودع، وتضخم الخسائر كما تضخم الأرباح.</li><li><b>Lot / حجم العقد:</b> يحدد مقدار التعرض السعري في الصفقة.</li></ul><h3>تذكّر</h3><p>قد تختلف مواصفات العقود والهامش والعمولات بين الوسطاء. اقرأ مواصفات الأداة قبل التداول.</p></div><div class="lesson-actions"><button class="primary" onclick="completeLesson(1)">أنهيت الدرس</button><button onclick="showLesson(2)">الدرس التالي ←</button></div></section>
+<section id="lesson2" class="lesson card" hidden><button onclick="goHome()">← المكتبة</button><h2>02 · الشموع اليابانية</h2><div class="lesson-content"><p>كل شمعة تلخص حركة السعر خلال إطار زمني محدد، مثل 5 دقائق أو ساعة أو يوم.</p><h3>أجزاء الشمعة</h3><ul><li><b>الافتتاح:</b> أول سعر في الفترة.</li><li><b>الإغلاق:</b> آخر سعر في الفترة.</li><li><b>القمة:</b> أعلى سعر وصل إليه الأصل.</li><li><b>القاع:</b> أدنى سعر وصل إليه الأصل.</li><li><b>الجسم:</b> المسافة بين الافتتاح والإغلاق.</li><li><b>الظلال:</b> توضح امتداد السعر أعلى وأسفل الجسم.</li></ul><h3>كيف تقرأها؟</h3><p>الإغلاق أعلى الافتتاح يعني شمعة صاعدة، والإغلاق أدنى الافتتاح يعني شمعة هابطة. لا تكفي شمعة واحدة لاتخاذ قرار؛ اقرأها مع الاتجاه والمستويات والسياق.</p></div><div class="lesson-actions"><button class="primary" onclick="completeLesson(2)">أنهيت الدرس</button><button onclick="showLesson(3)">الدرس التالي ←</button></div></section>
+<section id="lesson3" class="lesson card" hidden><button onclick="goHome()">← المكتبة</button><h2>03 · الدعوم والمقاومات</h2><div class="lesson-content"><p>الدعم والمقاومة منطقتان سعريتان يراقب عندهما المتداولون تفاعل العرض والطلب. الأفضل التعامل معهما كمناطق لا كخطوط سحرية.</p><h3>الدعم</h3><p>منطقة قد يظهر قربها طلب يبطئ الهبوط أو يوقفه مؤقتاً.</p><h3>المقاومة</h3><p>منطقة قد يظهر قربها عرض يبطئ الصعود أو يوقفه مؤقتاً.</p><h3>تطبيق عملي</h3><ul><li>ابحث عن مناطق تكرر عندها انعكاس السعر أو تباطؤه.</li><li>لاحظ القمم والقيعان السابقة.</li><li>انتظر سلوك السعر أو إغلاقاً يؤكد الفكرة وفق خطتك.</li><li>ضع سيناريو بديلاً إذا كُسرت المنطقة؛ فلا دعم أو مقاومة مضمونان.</li></ul></div><div class="lesson-actions"><button class="primary" onclick="completeLesson(3)">أنهيت الدرس</button><button onclick="showLesson(4)">الدرس التالي ←</button></div></section>
+<section id="lesson4" class="lesson card" hidden><button onclick="goHome()">← المكتبة</button><h2>04 · الاتجاهات السعرية</h2><div class="lesson-content"><p>تحديد الاتجاه يساعدك على فهم السياق العام بدلاً من تفسير كل حركة صغيرة بمعزل عن غيرها.</p><ul><li><b>اتجاه صاعد:</b> قمم وقيعان متتالية أعلى من السابقة غالباً.</li><li><b>اتجاه هابط:</b> قمم وقيعان متتالية أدنى من السابقة غالباً.</li><li><b>اتجاه عرضي:</b> يتحرك السعر ضمن نطاق دون تسلسل واضح للقمم والقيعان.</li></ul><h3>تمرين</h3><p>افتح مختبر الشموع، وراقب آخر 20 إلى 30 شمعة. حدّد القمم والقيعان، ثم اسأل نفسك: هل تتصاعد أم تتناقص أم تتحرك داخل نطاق؟ لا تجبر الرسم على اتجاه غير واضح.</p><a class="button secondary" href="chart.html">افتح مختبر التحليل</a></div><div class="lesson-actions"><button class="primary" onclick="completeLesson(4)">أنهيت الدرس</button><button onclick="showLesson(5)">الدرس التالي ←</button></div></section>
+<section id="lesson5" class="lesson card" hidden><button onclick="goHome()">← المكتبة</button><h2>05 · إدارة رأس المال والمخاطر</h2><div class="lesson-content"><p>إدارة المخاطر تسبق البحث عن نقطة الدخول. لا توجد استراتيجية تضمن الربح، ويمكن أن تخسر حتى مع تحليل جيد.</p><h3>قواعد أساسية</h3><ul><li>حدد نقطة إبطال الفكرة ووقف الخسارة قبل الدخول.</li><li>حدد مبلغاً أو نسبة مخاطرة تستطيع تحملها.</li><li>احسب حجم المركز بناءً على المسافة إلى وقف الخسارة ومواصفات العقد.</li><li>لا ترفع الرافعة لتعويض خسارة سابقة.</li><li>سجل سبب الدخول والخروج والنتيجة، وراجع أخطاءك.</li></ul><h3>نسبة العائد إلى المخاطرة</h3><p>قارن الربح المحتمل بالخسارة المحتملة، لكن تذكر أن النسبة وحدها لا تجعل الصفقة جيدة؛ احتمالية النجاح والتنفيذ والتكاليف مهمة أيضاً.</p><div class="callout">التدريب على بيانات افتراضية لا يلغي مخاطر التداول الحقيقي. لا تستخدم أموالاً لا تستطيع تحمل خسارتها.</div></div><div class="lesson-actions"><button class="primary" onclick="completeLesson(5)">أنهيت الدرس</button><a class="button secondary" href="quiz.html">اختبر فهمك</a></div></section>
+<div class="card" style="margin-top:20px"><a class="button secondary" href="index.html">العودة للرئيسية</a></div>
 </main>
-
+<footer>أكاديمية نور الدين · تعلّم، طبّق، وراجع تقدمك.</footer>
 <script>
-function showLesson(n) {
-  document.getElementById("home").hidden = true;
-  document.querySelectorAll(".lesson").forEach(lesson => {
-    lesson.hidden = true;
-  });
-  document.getElementById("lesson" + n).hidden = false;
-  window.scrollTo(0, 0);
+"use strict";
+const progressKey="nourAcademyLessonProgressV1";
+let completed=[];
+try{const saved=JSON.parse(localStorage.getItem(progressKey)||"[]");if(Array.isArray(saved))completed=saved.filter(n=>Number.isInteger(n)&&n>=1&&n<=5);}catch{completed=[];}
+function saveProgress(){try{localStorage.setItem(progressKey,JSON.stringify(completed));}catch{}}
+function refreshProgress(){
+ const count=completed.length;
+ document.getElementById("progressFill").style.width=(count/5*100)+"%";
+ document.getElementById("progressText").textContent="أكملت "+count+" من 5 دروس";
+ document.getElementById("continueButton").textContent=count===5?"راجِع الدروس من جديد":"أكمل من الدرس التالي";
+ document.getElementById("continueButton").onclick=()=>{const next=[1,2,3,4,5].find(n=>!completed.includes(n))||1;showLesson(next);return false;};
+ for(let n=1;n<=5;n++)document.getElementById("status"+n).textContent=completed.includes(n)?"✓ مكتمل":"لم يبدأ";
 }
-
-function goHome() {
-  document.querySelectorAll(".lesson").forEach(lesson => {
-    lesson.hidden = true;
-  });
-  document.getElementById("home").hidden = false;
-  window.scrollTo(0, 0);
-}
+function showLesson(n){document.getElementById("home").hidden=true;document.querySelectorAll(".lesson").forEach(el=>el.hidden=true);document.getElementById("lesson"+n).hidden=false;window.scrollTo(0,0);}
+function goHome(){document.querySelectorAll(".lesson").forEach(el=>el.hidden=true);document.getElementById("home").hidden=false;refreshProgress();window.scrollTo(0,0);}
+function completeLesson(n){if(!completed.includes(n))completed.push(n);saveProgress();refreshProgress();const next=[1,2,3,4,5].find(x=>!completed.includes(x));if(next){showLesson(next);}else{goHome();document.getElementById("progressText").textContent="أحسنت! أكملت جميع دروس المكتبة الخمسة.";} }
+refreshProgress();
 </script>
-
 </body>
 </html>
