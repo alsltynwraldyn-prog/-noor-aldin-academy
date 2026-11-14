@@ -1,50 +1,166 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>النظريات الفنية | أكاديمية نور الدين</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>النظريات الفنية | أكاديمية نور الدين</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+body {
+  background: #101827;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+header {
+  text-align: center;
+  padding: 25px 10px;
+  background: #172b43;
+  border-bottom: 2px solid #c5a04b;
+}
+h1, h2, h3 {
+  color: #d5b45b;
+}
+.theory-card {
+  background: #172b43;
+  border: 1px solid #34465c;
+  border-radius: 12px;
+  padding: 18px;
+  margin: 18px 0;
+}
+.candle-box {
+  background: #0b1422;
+  border: 1px solid #c5a04b;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 20px;
+}
+.candles {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 35px;
+  height: 210px;
+}
+.candle {
+  position: relative;
+  width: 35px;
+  height: 75px;
+  border-radius: 3px;
+}
+.candle::before {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 180px;
+  left: 50%;
+  top: -52px;
+  transform: translateX(-50%);
+  background: currentColor;
+  z-index: 0;
+}
+.bullish {
+  background: #18c784;
+  color: #18c784;
+}
+.bearish {
+  background: #ef5350;
+  color: #ef5350;
+}
+.candle-label {
+  text-align: center;
+  color: #fff;
+  font-size: 13px;
+}
+.info {
+  border-right: 3px solid #d5b45b;
+  padding-right: 12px;
+  margin: 12px 0;
+  line-height: 1.8;
+}
+.back {
+  display: inline-block;
+  color: #d5b45b;
+  padding: 12px;
+  text-decoration: none;
+}
+</style>
 </head>
+
 <body>
 
-  <header>
-    <h1>أكاديمية نور الدين</h1>
-    <p>مكتبة النظريات والتحليل الفني</p>
-  </header>
+<header>
+<h1>أكاديمية نور الدين</h1>
+<p>مكتبة النظريات والتحليل الفني والأسواق المالية</p>
+</header>
 
-  <main class="container">
-    <h2>النظريات الفنية</h2>
+<main class="container">
 
-    <section class="theory-list">
-      <article>
-        <h3>نظرية داو</h3>
-        <p>دراسة الاتجاهات الرئيسية والثانوية وحركة السوق.</p>
-      </article>
+<h2>النظريات الفنية</h2>
 
-      <article>
-        <h3>نظرية إليوت</h3>
-        <p>تحليل حركة الأسعار باستخدام الموجات الدافعة والتصحيحية.</p>
-      </article>
+<section class="theory-card">
+<h3>الشموع اليابانية</h3>
 
-      <article>
-        <h3>نظرية وايكوف</h3>
-        <p>فهم التجميع والتصريف وسلوك كبار المشاركين في السوق.</p>
-      </article>
+<p>الشمعة تعرض الافتتاح والإغلاق وأعلى وأدنى سعر خلال فترة محددة.</p>
 
-      <article>
-        <h3>نظرية جان</h3>
-        <p>دراسة العلاقة بين السعر والزمن والزوايا الهندسية.</p>
-      </article>
+<div class="candle-box">
+<h3>الرسم التوضيحي للشموع اليابانية</h3>
 
-      <article>
-        <h3>نظرية فيبوناتشي</h3>
-        <p>استخدام النسب الرياضية لتحديد مناطق التصحيح والامتداد.</p>
-      </article>
-    </section>
+<div class="candles">
 
-    <a href="index.html">العودة للرئيسية</a>
-  </main>
+<div>
+<div class="candle bullish"></div>
+<p class="candle-label">شمعة صاعدة</p>
+</div>
 
+<div>
+<div class="candle bearish"></div>
+<p class="candle-label">شمعة هابطة</p>
+</div>
+
+</div>
+
+<div class="info">الجسم: يمثل الفرق بين سعر الافتتاح والإغلاق.</div>
+<div class="info">الفتيل العلوي: يمثل أعلى سعر وصلت إليه الشمعة.</div>
+<div class="info">الفتيل السفلي: يمثل أدنى سعر وصلت إليه الشمعة.</div>
+<div class="info">الشمعة الصاعدة: يكون إغلاقها أعلى من افتتاحها.</div>
+<div class="info">الشمعة الهابطة: يكون إغلاقها أقل من افتتاحها.</div>
+</div>
+</section>
+
+<section class="theory-card">
+<h3>نظرية داو</h3>
+<p>دراسة الاتجاهات الرئيسية والثانوية وحركة السوق.</p>
+</section>
+
+<section class="theory-card">
+<h3>نظرية إليوت</h3>
+<p>تحليل حركة الأسعار باستخدام الموجات الدافعة والتصحيحية.</p>
+</section>
+
+<section class="theory-card">
+<h3>نظرية وايكوف</h3>
+<p>فهم التجميع والتصريف وسلوك كبار المشاركين في السوق.</p>
+</section>
+
+<section class="theory-card">
+<h3>نظرية جان</h3>
+<p>دراسة العلاقة بين السعر والزمن والزوايا الهندسية.</p>
+</section>
+
+<section class="theory-card">
+<h3>نظرية فيبوناتشي</h3>
+<p>استخدام النسب الرياضية لتحديد مناطق التصحيح والامتداد.</p>
+</section>
+
+<a class="back" href="index.html">العودة للرئيسية</a>
+
+</main>
 </body>
 </html>
