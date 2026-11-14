@@ -1,46 +1,120 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>عن الأكاديمية | أكاديمية نور الدين</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المختبر التفاعلي | أكاديمية نور الدين</title>
+<link rel="stylesheet" href="style.css">
+
+<style>
+body {
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 15px;
+}
+.panel {
+  background: #172b43;
+  border: 1px solid #d5b45b;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px 0;
+}
+h2,h3 {color:#d5b45b}
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #101827;
+  border: 1px solid #52647b;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 5px;
+}
+button {
+  background: #d5b45b;
+  color: #101827;
+  border: 0;
+  padding: 11px 16px;
+  border-radius: 7px;
+  font-weight: bold;
+  margin: 5px;
+  cursor: pointer;
+}
+#chart-container {
+  width: 100%;
+  overflow: hidden;
+  background: #101827;
+  border: 1px solid #34465c;
+  border-radius: 10px;
+}
+#tradingChart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+a {color:#d5b45b}
+</style>
 </head>
+
 <body>
 
 <header>
-  <h1>أكاديمية نور الدين</h1>
-  <p>تعلم التحليل الفني والأسواق المالية</p>
+<h1>أكاديمية نور الدين</h1>
+<p>المختبر التفاعلي للتحليل الفني والأسواق المالية</p>
 </header>
 
 <main class="container">
-  <h2>عن الأكاديمية</h2>
 
-  <p>
-    أكاديمية نور الدين منصة تعليمية تهدف إلى تقديم المعرفة
-    في مجال التحليل الفني والأسواق المالية بأسلوب علمي ومنظم.
-  </p>
+<h2>مختبر الرسوم البيانية</h2>
 
-  <p>
-    نسعى إلى مساعدة المتعلم على فهم حركة الأسعار،
-    وقراءة الرسوم البيانية، واستخدام أدوات التحليل الفني،
-    وإدارة المخاطر بطريقة صحيحة.
-  </p>
+<section class="panel">
+<h3>المؤشرات الفنية</h3>
 
-  <h3>رؤيتنا</h3>
-  <p>بناء متداول يمتلك المعرفة والانضباط والقدرة على التحليل.</p>
+<label class="indicator">
+<input type="checkbox" id="showEMA">
+EMA المتوسط المتحرك الأسي
+</label>
 
-  <h3>رسالتنا</h3>
-  <p>تقديم محتوى تعليمي واضح يجمع بين النظريات والتطبيق العملي.</p>
+<label class="indicator">
+<input type="checkbox" id="showSMA">
+SMA المتوسط المتحرك البسيط
+</label>
 
-  <h3>تنبيه مهم</h3>
-  <p>
-    المحتوى تعليمي فقط، ولا يمثل توصيات مباشرة للبيع أو الشراء.
-    التداول ينطوي على مخاطر وقد يؤدي إلى خسارة رأس المال.
-  </p>
+<p style="color:#b8c5d6">
+فعّل المؤشر الذي تريد عرضه على الرسم البياني.
+</p>
+</section>
 
-  <a href="index.html">العودة للرئيسية</a>
+<section class="panel">
+<h3>الرسم البياني</h3>
+
+<div id="chart-container">
+<canvas id="tradingChart" width="900" height="450"></canvas>
+</div>
+
+<div class="controls">
+<button onclick="addCandle()">إضافة شمعة</button>
+<button onclick="resetChart()">إعادة ضبط</button>
+</div>
+</section>
+
+<section class="panel">
+<h3>معلومات المختبر</h3>
+<p>يمكنك تحديد الشموع وتعديل أسعارها وتجربة المؤشرات الفنية.</p>
+<p>البيانات الحالية تجريبية وليست أسعار سوق حقيقية.</p>
+</section>
+
+<a href="index.html">العودة للرئيسية</a>
+
 </main>
+
+<script src="chart.js"></script>
 
 </body>
 </html>
