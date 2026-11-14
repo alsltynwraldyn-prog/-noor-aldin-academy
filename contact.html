@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تواصل معنا | أكاديمية نور الدين</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>أكاديمية نور الدين</h1>
+  <p>تواصل معنا</p>
+</header>
+
+<main class="container">
+  <h2>يسعدنا تواصلك معنا</h2>
+
+  <form id="contactForm">
+    <label>الاسم</label>
+    <input type="text" id="name" required>
+
+    <label>البريد الإلكتروني</label>
+    <input type="email" id="email" required>
+
+    <label>رسالتك</label>
+    <textarea id="message" required></textarea>
+
+    <button type="submit">إرسال الرسالة</button>
+  </form>
+
+  <p id="status"></p>
+
+  <a href="index.html">العودة للرئيسية</a>
+</main>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const message = document.getElementById("message").value;
+
+  const subject = encodeURIComponent("رسالة من أكاديمية نور الدين");
+  const body = encodeURIComponent(
+    "الاسم: " + name +
+    "\nالبريد: " + email +
+    "\nالرسالة: " + message
+  );
+
+  window.location.href =
+    "mailto:?subject=" + subject + "&body=" + body;
+});
+</script>
+
+</body>
+</html>
