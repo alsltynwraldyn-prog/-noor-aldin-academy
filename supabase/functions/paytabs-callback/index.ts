@@ -21,9 +21,9 @@ Deno.serve(async req=>{
   }
   const now=new Date(),end=new Date(now);
   if(order.plan_id==="vip_monthly") end.setMonth(end.getMonth()+1); else if(order.plan_id==="vip_yearly") end.setFullYear(end.getFullYear()+1); else return reply({error:"Unknown plan"},400);
-  const {error:updateError}=await admin.from("orders").update({status:"paid",paid_at:now.toISOString(),provider_reference:tranRef}).eq("id",order.id).neq("status","paid");
-  if(updateError) return reply({error:"Could not record payment"},500);
   const {error:subError}=await admin.from("subscriptions").upsert({user_id:order.user_id,plan_id:order.plan_id,status:"active",starts_at:now.toISOString(),ends_at:end.toISOString(),provider:"paytabs",provider_reference:tranRef,order_id:order.id},{onConflict:"order_id",ignoreDuplicates:true});
   if(subError) return reply({error:"Payment verified; membership activation needs reconciliation"},500);
+  const {error:updateError}=await admin.from("orders").update({status:"paid",paid_at:now.toISOString(),provider_reference:tranRef}).eq("id",order.id).neq("status","paid");
+  if(updateError) return reply({error:"Membership activated; order recording needs reconciliation"},500);
   return reply({received:true,verified:true});
 });
