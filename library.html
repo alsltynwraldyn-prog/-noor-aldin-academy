@@ -1,120 +1,129 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#172b43">
 <title>المكتبة التعليمية | أكاديمية نور الدين</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif}
-header{background:#172b43;padding:25px 15px;text-align:center;border-bottom:3px solid #d5aa54}
-h1{color:#e9bd65}
-main{padding:16px;max-width:750px;margin:auto}
-.card{background:#1d2d42;padding:18px;margin:14px 0;border-radius:13px;border:1px solid #34445a}
-h2,h3{color:#e9bd65}
-p{line-height:1.9;color:#d3dbe6}
-button{background:#d5aa54;color:#101827;border:0;padding:12px 20px;border-radius:8px;font-weight:bold}
-.lesson{display:none}
-.lesson.active{display:block}
-.back{margin-bottom:15px}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <header>
 <h1>أكاديمية نور الدين</h1>
 <p>المكتبة التعليمية للتحليل الفني والأسواق المالية</p>
 </header>
+
 <main>
+
 <div id="home">
 <div class="card">
-<h2>مرحباً بك في المكتبة التعليمية</h2>
-<p>تعلم التحليل الفني من الصفر حتى الاحتراف، من خلال دروس منظمة وتطبيقات عملية.</p>
+<h2>المكتبة التعليمية</h2>
+<p>تعلم التحليل الفني من الصفر حتى الاحتراف.</p>
 </div>
+
 <div class="card">
-<h2>1. أساسيات التداول</h2>
-<p>تعرف على الأسواق المالية وطريقة عملها.</p>
+<h2>أساسيات التداول</h2>
+<p>تعرف على الأسواق المالية ومصطلحات التداول.</p>
 <button onclick="showLesson(1)">ابدأ التعلم</button>
 </div>
+
 <div class="card">
-<h2>2. الشموع اليابانية</h2>
-<p>تعلم قراءة الشموع وفهم سلوك السعر.</p>
+<h2>الشموع اليابانية</h2>
+<p>تعلم قراءة الشموع وفهم حركة السعر.</p>
 <button onclick="showLesson(2)">ابدأ التعلم</button>
 </div>
+
 <div class="card">
-<h2>3. الدعوم والمقاومات</h2>
-<p>تعلم تحديد مناطق العرض والطلب السعرية.</p>
+<h2>الدعوم والمقاومات</h2>
+<p>تعلم تحديد المناطق السعرية المهمة.</p>
 <button onclick="showLesson(3)">ابدأ التعلم</button>
 </div>
+
 <div class="card">
-<h2>4. الاتجاهات السعرية</h2>
+<h2>الاتجاهات السعرية</h2>
 <p>تعرف على الاتجاه الصاعد والهابط والعرضي.</p>
 <button onclick="showLesson(4)">ابدأ التعلم</button>
 </div>
+
 <div class="card">
-<h2>5. إدارة رأس المال</h2>
+<h2>إدارة رأس المال</h2>
 <p>تعلم حماية رأس المال وإدارة المخاطر.</p>
 <button onclick="showLesson(5)">ابدأ التعلم</button>
 </div>
 </div>
 
-<div id="lesson1" class="lesson card">
-<button class="back" onclick="goHome()">رجوع</button>
+<div id="lesson1" class="lesson card" hidden>
+<button onclick="goHome()">رجوع</button>
 <h2>أساسيات التداول</h2>
 <p>التداول هو شراء وبيع الأصول المالية بهدف الاستفادة من تغير أسعارها.</p>
 <h3>أهم المصطلحات</h3>
-<p><b>السوق:</b> المكان الذي تتم فيه عمليات البيع والشراء.</p>
-<p><b>الشراء (Buy):</b> فتح صفقة للاستفادة من ارتفاع السعر.</p>
-<p><b>البيع (Sell):</b> فتح صفقة للاستفادة من انخفاض السعر.</p>
-<p><b>الرافعة المالية:</b> وسيلة لزيادة حجم التعرض للسوق، لكنها تضاعف المخاطر أيضاً.</p>
+<p>Buy: الشراء.</p>
+<p>Sell: البيع.</p>
+<p>Leverage: الرافعة المالية، وهي تزيد الأرباح والخسائر المحتملة.</p>
+<p>Spread: الفرق بين سعر الشراء والبيع.</p>
+<p>Lot: حجم الصفقة.</p>
 </div>
 
-<div id="lesson2" class="lesson card">
-<button class="back" onclick="goHome()">رجوع</button>
+<div id="lesson2" class="lesson card" hidden>
+<button onclick="goHome()">رجوع</button>
 <h2>الشموع اليابانية</h2>
-<p>الشمعة اليابانية تعرض حركة السعر خلال فترة زمنية محددة.</p>
-<h3>أجزاء الشمعة</h3>
-<p>الجسم: الفرق بين سعر الافتتاح والإغلاق.</p>
-<p>الفتيل العلوي: أعلى سعر وصل إليه السوق.</p>
-<p>الفتيل السفلي: أدنى سعر وصل إليه السوق.</p>
-<p>الشمعة الصاعدة: الإغلاق أعلى من الافتتاح.</p>
-<p>الشمعة الهابطة: الإغلاق أقل من الافتتاح.</p>
+<p>الشمعة تعرض الافتتاح والإغلاق وأعلى وأدنى سعر خلال فترة محددة.</p>
+<p>الجسم يمثل الفرق بين الافتتاح والإغلاق.</p>
+<p>الفتيل العلوي يمثل أعلى سعر.</p>
+<p>الفتيل السفلي يمثل أدنى سعر.</p>
+<p>الشمعة الصاعدة يكون إغلاقها أعلى من افتتاحها.</p>
+<p>الشمعة الهابطة يكون إغلاقها أقل من افتتاحها.</p>
 </div>
 
-<div id="lesson3" class="lesson card">
-<button class="back" onclick="goHome()">رجوع</button>
+<div id="lesson3" class="lesson card" hidden>
+<button onclick="goHome()">رجوع</button>
 <h2>الدعوم والمقاومات</h2>
-<p>الدعم منطقة قد يظهر عندها اهتمام شرائي يحد من الهبوط.</p>
-<p>المقاومة منطقة قد يظهر عندها اهتمام بيعي يحد من الصعود.</p>
-<p>هذه المناطق احتمالية وليست ضماناً لانعكاس السعر.</p>
+<p>الدعم منطقة قد يظهر عندها ضغط شرائي.</p>
+<p>المقاومة منطقة قد يظهر عندها ضغط بيعي.</p>
+<p>تزداد أهمية المنطقة عند تكرار تفاعل السعر معها، لكنها لا تضمن الانعكاس.</p>
 </div>
 
-<div id="lesson4" class="lesson card">
-<button class="back" onclick="goHome()">رجوع</button>
+<div id="lesson4" class="lesson card" hidden>
+<button onclick="goHome()">رجوع</button>
 <h2>الاتجاهات السعرية</h2>
-<p>الاتجاه الصاعد: قمم وقيعان أعلى تدريجياً.</p>
-<p>الاتجاه الهابط: قمم وقيعان أدنى تدريجياً.</p>
-<p>الاتجاه العرضي: حركة السعر ضمن نطاق محدد.</p>
+<p>الاتجاه الصاعد: قمم وقيعان أعلى.</p>
+<p>الاتجاه الهابط: قمم وقيعان أدنى.</p>
+<p>الاتجاه العرضي: حركة السعر ضمن نطاق.</p>
 </div>
 
-<div id="lesson5" class="lesson card">
-<button class="back" onclick="goHome()">رجوع</button>
+<div id="lesson5" class="lesson card" hidden>
+<button onclick="goHome()">رجوع</button>
 <h2>إدارة رأس المال</h2>
-<p>إدارة رأس المال تهدف إلى تقليل أثر الخسائر والمحافظة على القدرة على الاستمرار.</p>
-<p>حدد المخاطرة قبل دخول الصفقة، واستخدم وقف الخسارة، ولا تخاطر بمبلغ لا تستطيع تحمل خسارته.</p>
+<p>حدد نسبة المخاطرة قبل دخول الصفقة.</p>
+<p>استخدم وقف الخسارة.</p>
+<p>احسب حجم العقد وفق المسافة إلى وقف الخسارة.</p>
+<p>لا تخاطر بأموال لا تستطيع تحمل خسارتها.</p>
 </div>
+
+<div class="card">
+<button onclick="location.href='index.html'">العودة للرئيسية</button>
+</div>
+
 </main>
+
 <script>
-function showLesson(n){
-document.getElementById("home").style.display="none";
-document.querySelectorAll(".lesson").forEach(x=>x.classList.remove("active"));
-document.getElementById("lesson"+n).classList.add("active");
+function showLesson(n) {
+  document.getElementById("home").hidden = true;
+  document.querySelectorAll(".lesson").forEach(lesson => {
+    lesson.hidden = true;
+  });
+  document.getElementById("lesson" + n).hidden = false;
+  window.scrollTo(0, 0);
 }
-function goHome(){
-document.getElementById("home").style.display="block";
-document.querySelectorAll(".lesson").forEach(x=>x.classList.remove("active"));
+
+function goHome() {
+  document.querySelectorAll(".lesson").forEach(lesson => {
+    lesson.hidden = true;
+  });
+  document.getElementById("home").hidden = false;
+  window.scrollTo(0, 0);
 }
 </script>
+
 </body>
 </html>
