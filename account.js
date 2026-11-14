@@ -54,7 +54,7 @@ if (!configured()) {
     const password = passwordField.value;
     try {
       const result = mode === "signup"
-        ? await supabase.auth.signUp({email,password,options:{data:{display_name:nameField.value.trim()},emailRedirectTo:location.origin + "/account.html"}})
+        ? await supabase.auth.signUp({email,password,options:{data:{display_name:nameField.value.trim()},emailRedirectTo:new URL("account.html", location.href).href}})
         : await supabase.auth.signInWithPassword({email,password});
       if (result.error) throw result.error;
       if (mode === "signup" && !result.data.session) say("تم إنشاء الطلب. افتح بريدك الإلكتروني واضغط رابط تأكيد الحساب.");
@@ -67,7 +67,7 @@ if (!configured()) {
   document.querySelector("#reset-password").addEventListener("click", async () => {
     const email = document.querySelector("#email").value.trim();
     if (!email) return say("اكتب بريدك الإلكتروني أولاً.", true);
-    const {error} = await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin + "/account.html"});
+    const {error} = await supabase.auth.resetPasswordForEmail(email,{redirectTo:new URL("account.html", location.href).href});
     say(error ? error.message : "إذا كان البريد مسجلاً، سيصلك رابط استعادة كلمة المرور.", !!error);
   });
   document.querySelector("#sign-out").addEventListener("click", async () => {
