@@ -1,6 +1,8 @@
 # ARVYQEN account and membership setup
 
 ## 1) Create Supabase project
+Use the published site URL exactly, including the GitHub Pages repository path if present. For this repository the expected Pages URL is `https://alsltynwraldyn-prog.github.io/-noor-aldin-academy/`. The callback URL is on Supabase, not GitHub Pages: `https://YOUR_PROJECT_REF.supabase.co/functions/v1/paytabs-callback`.
+
 Create a project in Supabase. In Authentication > URL Configuration set the production Site URL to the published site URL and add `/account.html` as an allowed redirect URL. Enable email confirmations and configure SMTP before public launch.
 
 ## 2) Database
