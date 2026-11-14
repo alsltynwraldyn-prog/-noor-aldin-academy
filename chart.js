@@ -11,11 +11,15 @@ const colors = {
   gold: "#d5b45b",
   bullish: "#00c087",
   bearish: "#ef5350",
-  white: "#ffffff"
+  ema: "#ffb74d",
+  sma: "#42a5f5"
 };
 
+const emaToggle = document.getElementById("showEMA");
+const smaToggle = document.getElementById("showSMA");
+
 function generateCandle(previousClose) {
-  const open = previousClose ?? (Math.random() * 100 + 150);
+  const open = previousClose ?? 200 + Math.random() * 30;
   const close = open + (Math.random() - 0.5) * 35;
 
   return {
@@ -26,6 +30,45 @@ function generateCandle(previousClose) {
   };
 }
 
+// المتوسط المتحرك البسيط SMA
+function calculateSMA(period = 5) {
+  return candles.map((c, i) => {
+    if (i < period - 1) return null;
+
+    const values = candles
+      .slice(i - period + 1, i + 1)
+      .map(item => item.close);
+
+    return values.reduce((a, b) => a + b, 0) / period;
+  });
+}
+
+// المتوسط المتحرك الأسي EMA
+function calculateEMA(period = 5) {
+  const result = [];
+  const multiplier = 2 / (period + 1);
+
+  let previous = null;
+
+  candles.forEach((c, i) => {
+    if (i === period - 1) {
+      const initial = candles
+        .slice(0, period)
+        .reduce((sum, item) => sum + item.close, 0) / period;
+
+      previous = initial;
+      result.push(initial);
+    } else if (i >= period) {
+      previous = (c.close - previous) * multiplier + previous;
+      result.push(previous);
+    } else {
+      result.push(null);
+    }
+  });
+
+  return result;
+}
+
 function drawChart() {
   const w = canvas.width;
   const h = canvas.height;
@@ -34,8 +77,12 @@ function drawChart() {
   ctx.fillStyle = colors.background;
   ctx.fillRect(0, 0, w, h);
 
-  const max = Math.max(...candles.map(c => c.high)) + 15;
-  const min = Math.min(...candles.map(c => c.low)) - 15;
+  if (!candles.length) return;
+
+  const allValues = candles.flatMap(c => [c.high, c.low]);
+
+  const max = Math.max(...allValues) + 15;
+  const min = Math.min(...allValues) - 15;
   const range = max - min || 1;
 
   const top = 30;
@@ -53,23 +100,24 @@ function drawChart() {
   ctx.fillStyle = colors.gold;
 
   for (let i = 0; i <= 5; i++) {
-    const y = top + (chartHeight / 5) * i;
+    const y = top + chartHeight / 5 * i;
 
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(w, y);
     ctx.stroke();
 
-    const price = max - (range / 5) * i;
+    const price = max - range / 5 * i;
     ctx.fillText(price.toFixed(2), 8, y - 5);
   }
 
-  // رسم الشموع
   const spacing = (w - 70) / Math.max(candles.length, 1);
   const bodyWidth = Math.min(18, spacing * 0.55);
 
+  // رسم الشموع
   candles.forEach((c, i) => {
     const x = 50 + i * spacing + spacing / 2;
+
     const color = c.close >= c.open
       ? colors.bullish
       : colors.bearish;
@@ -79,16 +127,16 @@ function drawChart() {
     const openY = priceY(c.open);
     const closeY = priceY(c.close);
 
-    // الفتيل
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
+
     ctx.beginPath();
     ctx.moveTo(x, highY);
     ctx.lineTo(x, lowY);
     ctx.stroke();
 
-    // جسم الشمعة
     ctx.fillStyle = color;
+
     ctx.fillRect(
       x - bodyWidth / 2,
       Math.min(openY, closeY),
@@ -96,94 +144,85 @@ function drawChart() {
       Math.max(Math.abs(openY - closeY), 3)
     );
 
-    // تحديد الشمعة المختارة
     if (i === selectedCandle) {
       ctx.strokeStyle = colors.gold;
       ctx.lineWidth = 2;
-      ctx.strokeRect(x - bodyWidth, highY - 5, bodyWidth * 2, lowY - highY + 10);
+      ctx.strokeRect(
+        x - bodyWidth,
+        highY - 5,
+        bodyWidth * 2,
+        lowY - highY + 10
+      );
     }
   });
-}
 
-// إضافة شمعة
-function addCandle() {
-  const previous = candles.length
-    ? candles[candles.length - 1].close
-    : undefined;
-
-  candles.push(generateCandle(previous));
-
-  if (candles.length > 30) {
-    candles.shift();
+  // رسم EMA
+  if (emaToggle?.checked) {
+    drawIndicator(calculateEMA(5), colors.ema, priceY);
   }
 
-  selectedCandle = candles.length - 1;
-  drawChart();
-  updateEditor();
-}
-
-// إعادة ضبط
-function resetChart() {
-  candles = [];
-
-  let previous = 200;
-
-  for (let i = 0; i < 15; i++) {
-    const candle = generateCandle(previous);
-    candles.push(candle);
-    previous = candle.close;
+  // رسم SMA
+  if (smaToggle?.checked) {
+    drawIndicator(calculateSMA(5), colors.sma, priceY);
   }
-
-  selectedCandle = -1;
-  drawChart();
-  updateEditor();
 }
 
-// حذف الشمعة المختارة
-function deleteCandle() {
-  if (selectedCandle < 0) return;
+function drawIndicator(values, color, priceY) {
+  ctx.beginPath();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
 
-  candles.splice(selectedCandle, 1);
-  selectedCandle = -1;
-  drawChart();
-  updateEditor();
+  const spacing = (canvas.width - 70) / candles.length;
+  let started = false;
+
+  values.forEach((value, i) => {
+    if (value === null) return;
+
+    const x = 50 + i * spacing + spacing / 2;
+    const y = priceY(value);
+
+    if (!started) {
+      ctx.moveTo(x, y);
+      started = true;
+    } else {
+      ctx.lineTo(x, y);
+    }
+  });
+
+  ctx.stroke();
 }
 
-// اختيار شمعة بالضغط عليها
-canvas.addEventListener("click", function(event) {
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = (event.clientX - rect.left) * canvas.width / rect.width;
-
-  const spacing = (canvas.width - 70) / Math.max(candles.length, 1);
-
-  const index = Math.floor((mouseX - 50) / spacing);
-
-  if (index >= 0 && index < candles.length) {
-    selectedCandle = index;
-    drawChart();
-    updateEditor();
-  }
-});
-
-// إنشاء لوحة تعديل الأسعار
+// لوحة تعديل الشمعة
 const editor = document.createElement("div");
 
 editor.style.cssText = `
-  background:#172b43;
-  color:white;
-  padding:15px;
-  margin:15px 0;
-  border:1px solid #d5b45b;
-  border-radius:12px;
+background:#172b43;
+color:white;
+padding:15px;
+margin:15px 0;
+border:1px solid #d5b45b;
+border-radius:12px;
 `;
 
 canvas.parentNode.after(editor);
+
+function field(label, key, value) {
+  return `
+    <label style="display:block">
+      ${label}
+      <input type="number" step="0.01"
+        value="${value}"
+        onchange="changePrice('${key}',this.value)"
+        style="width:100%;box-sizing:border-box;padding:10px;margin-top:5px">
+    </label>
+  `;
+}
 
 function updateEditor() {
   if (selectedCandle < 0 || !candles[selectedCandle]) {
     editor.innerHTML = `
       <h3 style="color:#d5b45b">مختبر الشموع اليابانية</h3>
-      <p>اضغط على أي شمعة في الرسم لتحديدها وتعديل أسعارها.</p>
+      <p>اضغط على شمعة لتحديدها وتعديل أسعارها.</p>
       <p>عدد الشموع: ${candles.length}</p>
     `;
     return;
@@ -195,12 +234,10 @@ function updateEditor() {
     <h3 style="color:#d5b45b">تعديل الشمعة رقم ${selectedCandle + 1}</h3>
 
     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
-
       ${field("الافتتاح", "open", c.open)}
       ${field("الإغلاق", "close", c.close)}
       ${field("أعلى سعر", "high", c.high)}
       ${field("أدنى سعر", "low", c.low)}
-
     </div>
 
     <p id="editorError" style="color:#ef5350"></p>
@@ -212,30 +249,16 @@ function updateEditor() {
   `;
 }
 
-function field(label, key, value) {
-  return `
-    <label style="display:block">
-      ${label}
-      <input type="number" step="0.01" value="${value}"
-        onchange="changePrice('${key}',this.value)"
-        style="width:100%;box-sizing:border-box;padding:10px;margin-top:5px">
-    </label>
-  `;
-}
-
-// تعديل الأسعار مع التحقق من صحة الشمعة
 function changePrice(key, value) {
   const c = candles[selectedCandle];
   if (!c) return;
 
-  const number = Number(value);
-
-  if (value === "" || !Number.isFinite(number)) {
+  if (value === "" || !Number.isFinite(Number(value))) {
     updateEditor();
     return;
   }
 
-  const updated = { ...c, [key]: number };
+  const updated = { ...c, [key]: Number(value) };
 
   if (
     updated.high < Math.max(updated.open, updated.close) ||
@@ -243,7 +266,7 @@ function changePrice(key, value) {
     updated.high < updated.low
   ) {
     document.getElementById("editorError").textContent =
-      "خطأ: تأكد من أن الأعلى أكبر من الافتتاح والإغلاق، والأدنى أقل منهما.";
+      "تحقق من صحة أسعار الشمعة.";
     return;
   }
 
@@ -252,5 +275,65 @@ function changePrice(key, value) {
   updateEditor();
 }
 
-// تجهيز المختبر
+function addCandle() {
+  const previous = candles.length
+    ? candles[candles.length - 1].close
+    : undefined;
+
+  candles.push(generateCandle(previous));
+
+  if (candles.length > 30) candles.shift();
+
+  selectedCandle = candles.length - 1;
+  drawChart();
+  updateEditor();
+}
+
+function deleteCandle() {
+  if (selectedCandle < 0) return;
+
+  candles.splice(selectedCandle, 1);
+  selectedCandle = -1;
+
+  drawChart();
+  updateEditor();
+}
+
+function resetChart() {
+  candles = [];
+  let previous = 200;
+
+  for (let i = 0; i < 15; i++) {
+    const c = generateCandle(previous);
+    candles.push(c);
+    previous = c.close;
+  }
+
+  selectedCandle = -1;
+  drawChart();
+  updateEditor();
+}
+
+// اختيار الشمعة بالضغط عليها
+canvas.addEventListener("click", event => {
+  const rect = canvas.getBoundingClientRect();
+
+  const mouseX =
+    (event.clientX - rect.left) * canvas.width / rect.width;
+
+  const spacing = (canvas.width - 70) / candles.length;
+  const index = Math.floor((mouseX - 50) / spacing);
+
+  if (index >= 0 && index < candles.length) {
+    selectedCandle = index;
+    drawChart();
+    updateEditor();
+  }
+});
+
+// تشغيل وإيقاف المؤشرات
+emaToggle?.addEventListener("change", drawChart);
+smaToggle?.addEventListener("change", drawChart);
+
+// تشغيل المختبر
 resetChart();
