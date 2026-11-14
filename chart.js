@@ -248,6 +248,58 @@ function calcWilliams(data,period){
   });
 }
 
+function calcADX(data,period){
+  const out=Array(data.length).fill(null);
+  if(data.length<period*2) return out;
+
+  const tr=trueRanges(data);
+  const plusDM=Array(data.length).fill(0);
+  const minusDM=Array(data.length).fill(0);
+
+  for(let i=1;i<data.length;i++){
+    const up=data[i].high-data[i-1].high;
+    const down=data[i-1].low-data[i].low;
+    plusDM[i]=up>down && up>0 ? up : 0;
+    minusDM[i]=down>up && down>0 ? down : 0;
+  }
+
+  let trSum=0,plusSum=0,minusSum=0;
+  for(let i=1;i<=period;i++){
+    trSum+=tr[i];
+    plusSum+=plusDM[i];
+    minusSum+=minusDM[i];
+  }
+
+  const dx=Array(data.length).fill(null);
+  for(let i=period;i<data.length;i++){
+    if(i>period){
+      trSum=trSum-trSum/period+tr[i];
+      plusSum=plusSum-plusSum/period+plusDM[i];
+      minusSum=minusSum-minusSum/period+minusDM[i];
+    }
+    const plusDI=trSum===0?0:100*plusSum/trSum;
+    const minusDI=trSum===0?0:100*minusSum/trSum;
+    const total=plusDI+minusDI;
+    dx[i]=total===0?0:100*Math.abs(plusDI-minusDI)/total;
+  }
+
+  let seed=[];
+  for(let i=period;i<data.length;i++){
+    if(dx[i]!==null) seed.push(dx[i]);
+    if(seed.length===period){
+      const first=seed.reduce((a,b)=>a+b,0)/period;
+      out[i]=first;
+      let previous=first;
+      for(let j=i+1;j<data.length;j++){
+        previous=((previous*(period-1))+dx[j])/period;
+        out[j]=previous;
+      }
+      break;
+    }
+  }
+  return out;
+}
+
 function calcMFI(data,period){
   const typical=data.map(c=>(c.high+c.low+c.close)/3);
   const flow=typical.map((v,i)=>v*data[i].volume);
@@ -270,22 +322,27 @@ function calcMFI(data,period){
 
 function calculate(){
   const close=candles.map(c=>c.close);
-  const period=Math.max(2,Number(settings.ema.period)||14);
+  const periodFor=id=>Math.max(2,Math.min(200,Number(settings[id]?.period)||14));
   const tr=trueRanges(candles);
-  const atr=average(tr,period);
-  const sma=average(close,period);
-  const e=ema(close,period);
+  const atr=average(tr,periodFor("atr"));
+  const sma=average(close,periodFor("sma"));
+  const e=ema(close,periodFor("ema"));
+  const volatilityPeriod=periodFor("bollinger");
 
   const std=close.map((v,i)=>{
-    if(sma[i]===null) return null;
-    const part=close.slice(i-period+1,i+1);
-    return Math.sqrt(part.reduce((s,x)=>s+(x-sma[i])**2,0)/period);
+    if(i<volatilityPeriod-1) return null;
+    const mean=close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod;
+    const part=close.slice(i-volatilityPeriod+1,i+1);
+    return Math.sqrt(part.reduce((s,x)=>s+(x-mean)**2,0)/volatilityPeriod);
   });
 
   const bb={
-    upper:sma.map((v,i)=>v===null?null:v+2*std[i]),
-    middle:sma,
-    lower:sma.map((v,i)=>v===null?null:v-2*std[i])
+    upper:close.map((v,i)=>std[i]===null?null:
+      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod+2*std[i]),
+    middle:close.map((v,i)=>i<volatilityPeriod-1?null:
+      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod),
+    lower:close.map((v,i)=>std[i]===null?null:
+      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod-2*std[i])
   };
 
   const kc={
@@ -338,25 +395,26 @@ function calculate(){
     sar[i]=sarValue;
   }
 
-  const stoch=calcStochastic(candles,14);
+  const stoch=calcStochastic(candles,periodFor("stochastic"));
   const macd=calcMACD(close);
 
   return {
     ema:e,
     sma,
-    rsi:calcRSI(close,14),
+    rsi:calcRSI(close,periodFor("rsi")),
     macd,
     stochastic:stoch,
-    cci:calcCCI(candles,20),
-    williams:calcWilliams(candles,14),
+    cci:calcCCI(candles,periodFor("cci")),
+    williams:calcWilliams(candles,periodFor("williams")),
     bollinger:bb,
     atr,
+    adx:calcADX(candles,periodFor("adx")),
     keltner:kc,
     std,
     volume:candles.map(c=>c.volume),
     obv:obvData,
-    mfi:calcMFI(candles,14),
-    volumeSma:average(candles.map(c=>c.volume),14),
+    mfi:calcMFI(candles,periodFor("mfi")),
+    volumeSma:average(candles.map(c=>c.volume),periodFor("volumeSma")),
     sar
   };
 }
