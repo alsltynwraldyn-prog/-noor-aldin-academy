@@ -142,8 +142,40 @@ function ema(values,period){
       result.push(prev);
     }else result.push(null);
   });
-
   return result;
+}
+
+function emaNullable(values,period){
+  const out=Array(values.length).fill(null);
+  const first=values.findIndex(v=>v!==null&&Number.isFinite(v));
+  if(first<0) return out;
+  const valid=values.slice(first);
+  const calculated=ema(valid,period);
+  calculated.forEach((v,i)=>{out[first+i]=v;});
+  return out;
+}
+
+function wilderAverage(values,period){
+  const out=Array(values.length).fill(null);
+  if(values.length<period) return out;
+  let total=0;
+  for(let i=0;i<period;i++) total+=values[i];
+  let previous=total/period;
+  out[period-1]=previous;
+  for(let i=period;i<values.length;i++){
+    previous=(previous*(period-1)+values[i])/period;
+    out[i]=previous;
+  }
+  return out;
+}
+
+function standardDeviation(values,period){
+  return values.map((value,i)=>{
+    if(i<period-1) return null;
+    const part=values.slice(i-period+1,i+1);
+    const mean=part.reduce((a,b)=>a+b,0)/period;
+    return Math.sqrt(part.reduce((sum,x)=>sum+(x-mean)**2,0)/period);
+  });
 }
 
 function trueRanges(data){
@@ -173,7 +205,7 @@ function calcRSI(values,period){
   let avgGain=gains/period;
   let avgLoss=losses/period;
 
-  out[period]=avgLoss===0 ? 100 :
+  out[period]=avgGain===0&&avgLoss===0 ? 50 : avgLoss===0 ? 100 :
     100-(100/(1+avgGain/avgLoss));
 
   for(let i=period+1;i<values.length;i++){
@@ -181,7 +213,7 @@ function calcRSI(values,period){
     avgGain=(avgGain*(period-1)+Math.max(diff,0))/period;
     avgLoss=(avgLoss*(period-1)+Math.max(-diff,0))/period;
 
-    out[i]=avgLoss===0 ? 100 :
+    out[i]=avgGain===0&&avgLoss===0 ? 50 : avgLoss===0 ? 100 :
       100-(100/(1+avgGain/avgLoss));
   }
 
@@ -195,10 +227,7 @@ function calcMACD(values){
     fast[i]===null || slow[i]===null ? null : fast[i]-slow[i]
   );
 
-  const valid=line.map(v=>v===null?0:v);
-  const signal=ema(valid,9).map((v,i)=>
-    line[i]===null ? null : v
-  );
+  const signal=emaNullable(line,9);
 
   const histogram=line.map((v,i)=>
     v===null || signal[i]===null ? null : v-signal[i]
@@ -313,7 +342,7 @@ function calcMFI(data,period){
       else if(typical[j]<typical[j-1]) negative+=flow[j];
     }
 
-    out[i]=negative===0 ? 100 :
+    out[i]=positive===0&&negative===0 ? 50 : negative===0 ? 100 :
       100-(100/(1+positive/negative));
   }
 
@@ -324,25 +353,20 @@ function calculate(){
   const close=candles.map(c=>c.close);
   const periodFor=id=>Math.max(2,Math.min(200,Number(settings[id]?.period)||14));
   const tr=trueRanges(candles);
-  const atr=average(tr,periodFor("atr"));
+  const atr=wilderAverage(tr,periodFor("atr"));
   const sma=average(close,periodFor("sma"));
   const e=ema(close,periodFor("ema"));
   const volatilityPeriod=periodFor("bollinger");
-
-  const std=close.map((v,i)=>{
-    if(i<volatilityPeriod-1) return null;
-    const mean=close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod;
-    const part=close.slice(i-volatilityPeriod+1,i+1);
-    return Math.sqrt(part.reduce((s,x)=>s+(x-mean)**2,0)/volatilityPeriod);
-  });
+  const std=standardDeviation(close,periodFor("std"));
+  const bbStd=standardDeviation(close,volatilityPeriod);
 
   const bb={
-    upper:close.map((v,i)=>std[i]===null?null:
-      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod+2*std[i]),
+    upper:close.map((v,i)=>bbStd[i]===null?null:
+      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod+2*bbStd[i]),
     middle:close.map((v,i)=>i<volatilityPeriod-1?null:
       close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod),
-    lower:close.map((v,i)=>std[i]===null?null:
-      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod-2*std[i])
+    lower:close.map((v,i)=>bbStd[i]===null?null:
+      close.slice(i-volatilityPeriod+1,i+1).reduce((a,b)=>a+b,0)/volatilityPeriod-2*bbStd[i])
   };
 
   const kc={
