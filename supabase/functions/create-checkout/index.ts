@@ -22,7 +22,7 @@ Deno.serve(async req=>{
   const {error:insertError}=await admin.from("orders").insert({id:orderId,user_id:user.id,plan_id:plan.id,amount_minor:plan.amount_minor,currency:"JOD",status:"pending",provider:"paytabs"});
   if(insertError) return reply({error:"Could not create order"},500);
   const origin=siteUrl.replace(/\/$/,"");
-  const payload={profile_id:Number(profileId),tran_type:"sale",tran_class:"ecom",cart_id:orderId,cart_description:"ARVYQEN "+plan.name_ar,cart_amount:amount,cart_currency:"JOD",customer_details:{name:user.user_metadata?.display_name||"ARVYQEN learner",email:user.email,country:"JO"},callback:origin+"/functions/v1/paytabs-callback",return:origin+"/payment-return.html"};
+  const payload={profile_id:Number(profileId),tran_type:"sale",tran_class:"ecom",cart_id:orderId,cart_description:"ARVYQEN "+plan.name_ar,cart_amount:amount,cart_currency:"JOD",customer_details:{name:user.user_metadata?.display_name||"ARVYQEN learner",email:user.email,country:"JO"},callback:url+"/functions/v1/paytabs-callback",return:origin+"/payment-return.html"};
   const response=await fetch("https://secure-jordan.paytabs.com/payment/request",{method:"POST",headers:{"Authorization":serverKey,"Content-Type":"application/json"},body:JSON.stringify(payload)});
   const result=await response.json().catch(()=>({}));
   if(!response.ok||!result.redirect_url||!result.tran_ref){await admin.from("orders").update({status:"failed"}).eq("id",orderId);return reply({error:"Payment provider rejected the checkout request"},502)}
