@@ -1,44 +1,82 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#172b43">
 <title>أكاديمية نور الدين</title>
+
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
+
 <style>
-body{margin:0;background:#101827;color:white;font-family:Arial;text-align:center}
-header{background:#172b43;padding:30px 15px;border-bottom:3px solid #d5aa54}
-h1{color:#e9bd65}
-main{padding:20px}
-.card{background:#1d2d42;margin:15px auto;padding:22px;border-radius:14px;max-width:500px}
-button{background:#d5aa54;color:#101827;border:0;padding:13px 24px;border-radius:9px;font-weight:bold;font-size:16px}
-p{color:#d3dbe6;line-height:1.8}
+body {
+  margin: 0;
+  background: #101827;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+header {
+  background: #172b43;
+  padding: 30px 15px;
+  border-bottom: 3px solid #d5aa54;
+}
+h1 { color: #e9bd65; }
+main { padding: 20px; }
+.card {
+  background: #1d2d42;
+  margin: 15px auto;
+  padding: 22px;
+  border-radius: 14px;
+  max-width: 500px;
+}
+button {
+  background: #d5aa54;
+  color: #101827;
+  border: 0;
+  padding: 13px 24px;
+  border-radius: 9px;
+  font-weight: bold;
+  font-size: 16px;
+}
+p { color: #d3dbe6; line-height: 1.8; }
 </style>
 </head>
+
 <body>
+
 <header>
 <h1>أكاديمية نور الدين</h1>
 <p>لتعليم التحليل الفني والأسواق المالية</p>
 </header>
+
 <main>
 <div class="card">
 <h2>مرحباً بك في الأكاديمية</h2>
 <p>رحلتك نحو فهم الأسواق المالية تبدأ من هنا.</p>
 </div>
+
 <div class="card">
 <h2>المكتبة التعليمية</h2>
 <p>تعلم أساسيات التحليل الفني والشموع اليابانية.</p>
-<button onclick="alert('قريباً: المكتبة التعليمية')">دخول المكتبة</button>
+<button onclick="openLibrary()">دخول المكتبة</button>
 </div>
+
 <div class="card">
 <h2>مختبر التحليل التفاعلي</h2>
 <p>تدرب على فهم حركة الأسعار والاتجاهات.</p>
-<button onclick="alert('قريباً: مختبر التحليل')">دخول المختبر</button>
+<button onclick="openLab()">دخول المختبر</button>
 </div>
+
 <div class="card">
 <h2>الاختبارات التعليمية</h2>
 <p>اختبر معلوماتك وطوّر مهاراتك.</p>
-<button onclick="alert('قريباً: الاختبارات')">ابدأ الاختبار</button>
+<button onclick="openQuiz()">ابدأ الاختبار</button>
 </div>
 </main>
+
+<script src="script.js"></script>
 </body>
 </html>
