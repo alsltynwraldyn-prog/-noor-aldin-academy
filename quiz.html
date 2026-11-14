@@ -1,115 +1,20 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اختبر معلوماتك | أكاديمية نور الدين</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-<header>
-  <h1>أكاديمية نور الدين</h1>
-  <p>اختبر معلوماتك في التحليل الفني</p>
-</header>
-
-<main class="container">
-  <h2>اختبار التحليل الفني</h2>
-
-  <div id="quiz">
-    <h3 id="question">ما المقصود بالاتجاه الصاعد؟</h3>
-
-    <div id="answers">
-      <button onclick="checkAnswer(this, true)">قمم وقيعان أعلى</button>
-      <button onclick="checkAnswer(this, false)">قمم وقيعان أقل</button>
-      <button onclick="checkAnswer(this, false)">حركة جانبية</button>
-    </div>
-
-    <p id="result"></p>
-    <p id="score">النتيجة: 0</p>
-
-    <button onclick="nextQuestion()">السؤال التالي</button>
-  </div>
-
-  <a href="index.html">العودة للرئيسية</a>
-</main>
-
-<script>
-const questions = [
-  {
-    q: "ما المقصود بالاتجاه الصاعد؟",
-    a: ["قمم وقيعان أعلى", "قمم وقيعان أقل", "حركة جانبية"],
-    correct: 0
-  },
-  {
-    q: "ماذا يمثل مؤشر RSI؟",
-    a: ["حجم التداول", "الزخم", "السعر فقط"],
-    correct: 1
-  },
-  {
-    q: "ما وظيفة وقف الخسارة؟",
-    a: ["زيادة الرافعة", "تقليل الخسائر المحتملة", "زيادة حجم الصفقة"],
-    correct: 1
-  },
-  {
-    q: "ما نظرية وايكوف؟",
-    a: ["تحليل التجميع والتصريف", "تحليل الأخبار فقط", "تحليل العملات فقط"],
-    correct: 0
-  }
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>اختبر معلوماتك | أكاديمية نور الدين</title><link rel="stylesheet" href="style.css"></head><body><header><div class="header-inner"><a class="brand" href="index.html">أكاديمية نور الدين<small>اختبار التحليل الفني</small></a><a class="back" href="index.html">الرئيسية</a></div></header><main><section class="hero"><div class="eyebrow">KNOWLEDGE CHECK</div><h1>اختبر فهمك</h1><p>10 أسئلة متنوعة. اختر إجابة واحدة، واقرأ التوضيح بعد كل سؤال.</p></section><section id="quiz" class="panel"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><span class="pill" id="progress">السؤال 1 من 10</span><span class="pill" id="score">النتيجة: 0</span></div><h2 id="question"></h2><div id="answers" class="grid"></div><p id="feedback" class="callout" hidden></p><button id="next" disabled>السؤال التالي</button></section><section id="summary" hidden class="panel"></section></main><footer>التقييم للتعلم الذاتي وليس اختباراً مهنياً.</footer><script>
+const questions=[
+{q:"ما الذي يميز الاتجاه الصاعد؟",a:["قمم وقيعان أعلى","قمم وقيعان أدنى","حركة أفقية فقط"],c:0,e:"الاتجاه الصاعد يتميز عادة بتتابع قمم وقيعان أعلى."},
+{q:"ماذا يقيس مؤشر RSI أساساً؟",a:["حجم التداول","الزخم","قيمة الشركة"],c:1,e:"RSI يقيس زخم تغير السعر، ولا يعطي قراراً مستقلاً."},
+{q:"ما وظيفة وقف الخسارة؟",a:["ضمان الربح","إلغاء مخاطر السوق","تحديد خروج عند مستوى غير ملائم"],c:2,e:"وقف الخسارة أداة لإدارة المخاطر، لكنه لا يضمن سعراً مطابقاً أثناء الفجوات والانزلاق."},
+{q:"ماذا يقيس مؤشر ATR؟",a:["التقلب/المدى الحقيقي","اتجاه السوق فقط","حجم الصفقات المفتوحة"],c:0,e:"ATR يقيس التقلب ولا يحدد إن كان الاتجاه صاعداً أو هابطاً."},
+{q:"ما معنى الدعم؟",a:["سعر مضمون لا ينكسر","منطقة قد يظهر قربها طلب","أعلى سعر يومي"],c:1,e:"الدعم منطقة اهتمام محتملة وقد يتم كسرها."},
+{q:"ماذا يعرض MACD؟",a:["مقارنة متوسطات متحركة","عدد المتداولين","العمق السعري"],c:0,e:"MACD يعتمد على الفرق بين متوسطين أسيين وخط الإشارة."},
+{q:"ما المقصود بالتنويع؟",a:["فتح صفقات أكثر في الأصل نفسه","توزيع التعرض على أصول مختلفة","مضاعفة الرافعة"],c:1,e:"التنويع يوزع بعض المخاطر، لكنه لا يلغي مخاطر السوق."},
+{q:"متى يتأكد كسر النموذج غالباً؟",a:["بمجرد رسمه","بعد اختراق/كسر واضح وإغلاق مناسب","عند توقع المتداول"],c:1,e:"انتظر إشارة تأكيد وفق قواعدك، ولا تفترض أن الشكل وحده كافٍ."},
+{q:"ماذا يقيس ADX؟",a:["قوة الاتجاه","اتجاه الاتجاه وحده","حجم التداول"],c:0,e:"ADX يقيس قوة الاتجاه، أما تحديد الاتجاه فيحتاج قراءة +DI و-DI أو السعر."},
+{q:"ما أول خطوة قبل فتح صفقة؟",a:["تحديد المخاطرة وخطة الخروج","رفع الرافعة لأقصى حد","الدخول دون وقف"],c:0,e:"حدد نقطة الإبطال وحجم المخاطرة وحجم المركز قبل التنفيذ."}
 ];
-
-let current = 0;
-let score = 0;
-let answered = false;
-
-function loadQuestion() {
-  answered = false;
-  document.getElementById("question").textContent = questions[current].q;
-  document.getElementById("result").textContent = "";
-
-  const answers = document.getElementById("answers");
-  answers.innerHTML = "";
-
-  questions[current].a.forEach((answer, index) => {
-    const button = document.createElement("button");
-    button.textContent = answer;
-    button.onclick = () => checkAnswer(button, index === questions[current].correct);
-    answers.appendChild(button);
-  });
-}
-
-function checkAnswer(button, correct) {
-  if (answered) return;
-  answered = true;
-
-  if (correct) {
-    score++;
-    document.getElementById("result").textContent = "إجابة صحيحة!";
-  } else {
-    document.getElementById("result").textContent = "إجابة خاطئة!";
-  }
-
-  document.getElementById("score").textContent = "النتيجة: " + score;
-}
-
-function nextQuestion() {
-  if (!answered) return;
-
-  current++;
-
-  if (current >= questions.length) {
-    document.getElementById("quiz").innerHTML =
-      "<h3>انتهى الاختبار</h3><p>نتيجتك: " +
-      score + " من " + questions.length + "</p>" +
-      "<button onclick='location.reload()'>إعادة الاختبار</button>";
-    return;
-  }
-
-  loadQuestion();
-}
-
-loadQuestion();
-</script>
-
-</body>
-</html>
+let current=0,score=0,answered=false;
+const $=id=>document.getElementById(id);
+function load(){answered=false;$("progress").textContent="السؤال "+(current+1)+" من "+questions.length;$("score").textContent="النتيجة: "+score;$("question").textContent=questions[current].q;$("feedback").hidden=true;$("next").disabled=true;$("next").textContent=current===questions.length-1?"عرض النتيجة":"السؤال التالي";$("answers").innerHTML="";questions[current].a.forEach((answer,i)=>{const b=document.createElement("button");b.className="secondary";b.textContent=answer;b.addEventListener("click",()=>answerQuestion(i));$("answers").appendChild(b);});}
+function answerQuestion(index){if(answered)return;answered=true;const q=questions[current];const buttons=[...$("answers").children];buttons.forEach((b,i)=>{b.disabled=true;if(i===q.c)b.style.border="2px solid #27c58b";else if(i===index)b.style.border="2px solid #ef626c";});if(index===q.c)score++;$("score").textContent="النتيجة: "+score;$("feedback").textContent=(index===q.c?"إجابة صحيحة. ":"إجابة غير صحيحة. ")+q.e;$("feedback").hidden=false;$("next").disabled=false;}
+$("next").addEventListener("click",()=>{if(!answered)return;current++;if(current<questions.length){load();return;}const percent=Math.round(score/questions.length*100);$("quiz").hidden=true;$("summary").hidden=false;$("summary").innerHTML="<h2>انتهى الاختبار</h2><p>نتيجتك: <strong>"+score+" من "+questions.length+"</strong> ("+percent+"%)</p><p>"+(percent>=80?"ممتاز! راجع التفاصيل وواصل التدريب.":percent>=60?"جيد. راجع الإجابات والتوضيحات وحاول مجدداً.":"ابدأ بمراجعة الأساسيات ثم أعد الاختبار.")+"</p><button id='retry'>إعادة الاختبار</button><a class='button secondary' href='index.html'>الرئيسية</a>";$("retry").addEventListener("click",()=>{current=0;score=0;$("summary").hidden=true;$("quiz").hidden=false;load();});});
+load();
+</script></body></html>
