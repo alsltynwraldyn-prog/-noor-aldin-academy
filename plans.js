@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const cfg=window.ARVYQEN_SUPABASE;
+const cfg=window.ORVEXAL_SUPABASE;
 const status=document.querySelector("#plan-status");
 const buttons=[...document.querySelectorAll("[data-plan]")];
 if(cfg?.url?.startsWith("https://") && !cfg.url.includes("YOUR-PROJECT") && cfg.anonKey && !cfg.anonKey.includes("YOUR_")){

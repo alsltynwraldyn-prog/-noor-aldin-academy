@@ -36,4 +36,4 @@ function openContact() {
   window.location.href = "contact.html";
 }
 
-console.log("ARVYQEN جاهزة");
+console.log("ORVEXAL جاهزة");

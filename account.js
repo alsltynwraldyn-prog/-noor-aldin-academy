@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-const config = window.ARVYQEN_SUPABASE;
+const config = window.ORVEXAL_SUPABASE;
 const form = document.querySelector("#auth-form");
 const message = document.querySelector("#auth-message");
 const title = document.querySelector("#form-title");

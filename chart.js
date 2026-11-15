@@ -2,7 +2,7 @@
 "use strict";
 
 /* =========================================
-   ARVYQEN
+   ORVEXAL
    Interactive Technical Analysis Engine
 ========================================= */
 

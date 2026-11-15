@@ -1,4 +1,4 @@
--- ARVYQEN production schema. Run in Supabase SQL Editor.
+-- ORVEXAL production schema. Run in Supabase SQL Editor.
 create extension if not exists pgcrypto;
 
 create table if not exists public.profiles (

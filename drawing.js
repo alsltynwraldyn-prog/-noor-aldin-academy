@@ -1,7 +1,7 @@
 
 "use strict";
 
-/* ARVYQEN - DRAWING TOOLS */
+/* ORVEXAL - DRAWING TOOLS */
 
 (function () {
   const chart = document.getElementById("tradingChart");
