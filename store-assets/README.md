@@ -1,4 +1,4 @@
-# مواد عرض ARVYQEN
+# مواد عرض ORVEXAL
 
 - `google-play-listing-ar.md`: الاسم واللمحة القصيرة والوصف الكامل المقترح.
 - `feature-graphic.svg`: تصميم رئيسي بنسبة 1024×500 (مصدر SVG).
