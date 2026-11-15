@@ -1,4 +1,4 @@
-# ARVYQEN — Trading Education Academy
+# ORVEXAL — Trading Education Academy
 
 أكاديمية عربية لتعلّم الأسواق المالية والتحليل الفني، بواجهة عربية RTL وهوية بصرية كحلية وذهبية.
 
